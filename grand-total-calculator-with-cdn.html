@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grand Total Calculator</title>
+    <!-- Bootstrap CSS CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- React and ReactDOM CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.21.4/babel.min.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .calculation-card {
+            transition: all 0.3s ease;
+        }
+        .calculation-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .result-section {
+            background-color: #f8f9fa;
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        function GrandTotalCalculator() {
+            const [totalMeters, setTotalMeters] = useState('');
+            const [rate, setRate] = useState('');
+            const [deliveryCharges, setDeliveryCharges] = useState('');
+            const [gstRate, setGstRate] = useState('5');
+            const [showResults, setShowResults] = useState(false);
+            
+            // Parse input values to numbers, defaulting to 0 if empty
+            const parsedTotalMeters = totalMeters === '' ? 0 : parseFloat(totalMeters);
+            const parsedRate = rate === '' ? 0 : parseFloat(rate);
+            const parsedDeliveryCharges = deliveryCharges === '' ? 0 : parseFloat(deliveryCharges);
+            const parsedGstRate = gstRate === '' ? 0 : parseFloat(gstRate);
+            
+            // Calculate values
+            const subtotal = parsedTotalMeters * parsedRate;
+            const gstAmount = (subtotal + parsedDeliveryCharges) * (parsedGstRate / 100);
+            const grandTotal = subtotal + parsedDeliveryCharges + gstAmount;
+            
+            // Format currency
+            const formatCurrency = (value) => {
+                return new Intl.NumberFormat('en-IN', { 
+                    style: 'currency', 
+                    currency: 'INR',
+                    maximumFractionDigits: 2 
+                }).format(value);
+            };
+            
+            const handleCalculate = (e) => {
+                e.preventDefault();
+                setShowResults(true);
+            };
+            
+            const handleReset = () => {
+                setTotalMeters('');
+                setRate('');
+                setDeliveryCharges('');
+                setGstRate('5');
+                setShowResults(false);
+            };
+            
+            return (
+                <div className="container py-5">
+                    <div className="row justify-content-center">
+                        <div className="col-md-8">
+                            <div className="card calculation-card shadow border-0">
+                                <div className="card-header bg-primary text-white py-3">
+                                    <h2 className="mb-0 text-center">
+                                        <i className="bi bi-calculator me-2"></i>
+                                        Grand Total Calculator
+                                    </h2>
+                                </div>
+                                <div className="card-body p-4">
+                                    <form onSubmit={handleCalculate}>
+                                        <div className="row g-4">
+                                            <div className="col-md-6">
+                                                <label htmlFor="totalMeters" className="form-label fw-bold">
+                                                    <i className="bi bi-rulers me-2"></i>Total Meters
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    className="form-control form-control-lg"
+                                                    id="totalMeters"
+                                                    placeholder="Enter total meters"
+                                                    min="0"
+                                                    step="0.01"
+                                                    value={totalMeters}
+                                                    onChange={(e) => setTotalMeters(e.target.value)}
+                                                    required
+                                                />
+                                            </div>
+                                            <div className="col-md-6">
+                                                <label htmlFor="rate" className="form-label fw-bold">
+                                                    <i className="bi bi-tag me-2"></i>Rate per Meter
+                                                </label>
+                                                <div className="input-group">
+                                                    <span className="input-group-text">₹</span>
+                                                    <input
+                                                        type="number"
+                                                        className="form-control form-control-lg"
+                                                        id="rate"
+                                                        placeholder="Enter rate"
+                                                        min="0"
+                                                        step="0.01"
+                                                        value={rate}
+                                                        onChange={(e) => setRate(e.target.value)}
+                                                        required
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <label htmlFor="deliveryCharges" className="form-label fw-bold">
+                                                    <i className="bi bi-truck me-2"></i>Delivery Charges
+                                                </label>
+                                                <div className="input-group">
+                                                    <span className="input-group-text">₹</span>
+                                                    <input
+                                                        type="number"
+                                                        className="form-control form-control-lg"
+                                                        id="deliveryCharges"
+                                                        placeholder="Enter delivery charges"
+                                                        min="0"
+                                                        step="0.01"
+                                                        value={deliveryCharges}
+                                                        onChange={(e) => setDeliveryCharges(e.target.value)}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <label htmlFor="gstRate" className="form-label fw-bold">
+                                                    <i className="bi bi-percent me-2"></i>GST Rate
+                                                </label>
+                                                <div className="input-group">
+                                                    <input
+                                                        type="number"
+                                                        className="form-control form-control-lg"
+                                                        id="gstRate"
+                                                        placeholder="Enter GST rate"
+                                                        min="0"
+                                                        max="100"
+                                                        step="0.01"
+                                                        value={gstRate}
+                                                        onChange={(e) => setGstRate(e.target.value)}
+                                                        required
+                                                    />
+                                                    <span className="input-group-text">%</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="col-12 mt-4 d-grid gap-2 d-md-flex justify-content-md-center">
+                                                <button type="submit" className="btn btn-primary btn-lg px-5">
+                                                    <i className="bi bi-calculator me-2"></i>Calculate
+                                                </button>
+                                                <button type="button" className="btn btn-outline-secondary btn-lg px-5" onClick={handleReset}>
+                                                    <i className="bi bi-arrow-counterclockwise me-2"></i>Reset
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    
+                                    {showResults && (
+                                        <div className="result-section mt-5 p-4 border">
+                                            <h3 className="text-center mb-4 text-primary">Calculation Results</h3>
+                                            <div className="table-responsive">
+                                                <table className="table table-borderless table-hover">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td className="fw-bold">Material Cost:</td>
+                                                            <td className="text-end">{formatCurrency(subtotal)}</td>
+                                                            <td className="small text-muted">({parsedTotalMeters} meters × ₹{parsedRate} per meter)</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td className="fw-bold">Delivery Charges:</td>
+                                                            <td className="text-end">{formatCurrency(parsedDeliveryCharges)}</td>
+                                                            <td></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td className="fw-bold">GST ({parsedGstRate}%):</td>
+                                                            <td className="text-end">{formatCurrency(gstAmount)}</td>
+                                                            <td></td>
+                                                        </tr>
+                                                        <tr className="border-top">
+                                                            <td className="fw-bold fs-5">Grand Total:</td>
+                                                            <td className="text-end fw-bold fs-5 text-primary">{formatCurrency(grandTotal)}</td>
+                                                            <td></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div className="alert alert-info mt-3">
+                                                <i className="bi bi-info-circle-fill me-2"></i>
+                                                The grand total includes material cost, delivery charges, and {parsedGstRate}% GST.
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="card-footer bg-white text-center py-3 text-muted">
+                                    <small>© 2025 Grand Total Calculator | Made with <i className="bi bi-heart-fill text-danger"></i> using React & Bootstrap</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Render the app
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<GrandTotalCalculator />);
+    </script>
+</body>
+</html>
