@@ -17,27 +17,25 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
     <style>
         body {
-            background-color: #0c0c1e;
+            background-color: #f8f9fa;
             overflow-x: hidden;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         .calculation-card {
             transition: all 0.3s ease;
-            background-color: rgba(255, 255, 255, 0.95);
+            background-color: #ffffff;
             border-radius: 16px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
             overflow: hidden;
         }
         
         .calculation-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
         }
         
         .result-section {
-            background-color: rgba(248, 249, 250, 0.7);
+            background-color: #f8f9fa;
             border-radius: 0.5rem;
             transition: all 0.3s ease;
         }
@@ -54,7 +52,7 @@
         .circle {
             position: absolute;
             border-radius: 50%;
-            opacity: 0.5;
+            opacity: 0.2;
             filter: blur(60px);
         }
         
@@ -67,7 +65,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #0c0c1e;
+            background-color: #f8f9fa;
             z-index: 9999;
             transition: opacity 0.5s ease;
         }
@@ -78,7 +76,7 @@
             border-radius: 50%;
             display: inline-block;
             position: relative;
-            background: linear-gradient(0deg, rgba(255, 255, 255, 0.1) 33%, rgba(255, 255, 255, 1) 100%);
+            background: linear-gradient(0deg, rgba(13, 110, 253, 0.1) 33%, rgba(13, 110, 253, 1) 100%);
             box-sizing: border-box;
             animation: rotation 1s linear infinite;
         }
@@ -93,7 +91,7 @@
             width: 90px;
             height: 90px;
             border-radius: 50%;
-            background: #0c0c1e;
+            background: #f8f9fa;
         }
         
         @keyframes rotation {
@@ -102,17 +100,16 @@
         }
         
         .custom-input {
-            background-color: rgba(255, 255, 255, 0.9);
-            border: none;
-            border-bottom: 2px solid #6c63ff;
+            background-color: #ffffff;
+            border: 1px solid #ced4da;
             border-radius: 8px;
             padding: 12px;
             transition: all 0.3s;
         }
         
         .custom-input:focus {
-            box-shadow: 0 5px 15px rgba(108, 99, 255, 0.2);
-            border-bottom: 2px solid #4a44b4;
+            box-shadow: 0 5px 15px rgba(13, 110, 253, 0.1);
+            border-color: #0d6efd;
         }
         
         .receipt {
@@ -131,7 +128,7 @@
         }
         
         .print-button {
-            background: linear-gradient(135deg, #6c63ff, #4a44b4);
+            background: #0d6efd;
             border: none;
             color: white;
             border-radius: 8px;
@@ -140,8 +137,8 @@
         
         .print-button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(108, 99, 255, 0.4);
-            background: linear-gradient(135deg, #5a51e5, #3e39a0);
+            box-shadow: 0 5px 15px rgba(13, 110, 253, 0.2);
+            background: #0b5ed7;
         }
         
         @media print {
@@ -175,7 +172,7 @@
             const backgroundRef = useRef(null);
             
             useEffect(() => {
-                const colors = ['#6c63ff', '#ff6b6b', '#7ee8fa', '#2cfeba', '#a09aff'];
+                const colors = ['#0d6efd', '#6c757d', '#0dcaf0', '#20c997', '#0d6efd'];
                 const background = backgroundRef.current;
                 
                 // Create circles
@@ -271,7 +268,7 @@
                                                     </tr>
                                                     <tr className="border-top">
                                                         <td className="h4">Grand Total:</td>
-                                                        <td className="h4">₹{data.grandTotal.toFixed(2)}</td>
+                                                        <td className="h4 text-primary">₹{data.grandTotal.toFixed(2)}</td>
                                                     </tr>
                                                 </tbody>
                                             </table>
@@ -279,6 +276,8 @@
                                         
                                         <div className="text-center mt-4 mb-2">
                                             <p className="mb-0">Thank you for using our calculator!</p>
+                                            <p className="small text-muted mt-3">Created by: Aman Prasad</p>
+                                            <p className="small text-muted">Ramakrishna Mission Shilpamandira Computer Centre, Belur Math</p>
                                         </div>
                                     </div>
                                 </div>
@@ -370,8 +369,8 @@
                         <div className="row justify-content-center">
                             <div className="col-md-8">
                                 <div className="calculation-card shadow border-0">
-                                    <div className="card-header py-4" style={{ background: 'linear-gradient(135deg, #6c63ff, #4a44b4)', borderBottom: 'none' }}>
-                                        <h2 className="mb-0 text-center text-white">
+                                    <div className="card-header py-3 bg-primary text-white">
+                                        <h2 className="mb-0 text-center">
                                             <i className="bi bi-calculator me-2"></i>
                                             Grand Total Calculator
                                         </h2>
@@ -458,7 +457,7 @@
                                         
                                         {showResults && (
                                             <div className="result-section mt-5 p-4 border animate__animated animate__fadeIn">
-                                                <h3 className="text-center mb-4" style={{ color: '#6c63ff' }}>Calculation Results</h3>
+                                                <h3 className="text-center mb-4 text-primary">Calculation Results</h3>
                                                 <div className="table-responsive">
                                                     <table className="table table-borderless table-hover">
                                                         <tbody>
@@ -479,13 +478,13 @@
                                                             </tr>
                                                             <tr className="border-top">
                                                                 <td className="fw-bold fs-5">Grand Total:</td>
-                                                                <td className="text-end fw-bold fs-5" style={{ color: '#6c63ff' }}>{formatCurrency(grandTotal)}</td>
+                                                                <td className="text-end fw-bold fs-5 text-primary">{formatCurrency(grandTotal)}</td>
                                                                 <td></td>
                                                             </tr>
                                                         </tbody>
                                                     </table>
                                                 </div>
-                                                <div className="alert" style={{ backgroundColor: 'rgba(108, 99, 255, 0.1)', borderColor: '#6c63ff', color: '#4a44b4' }}>
+                                                <div className="alert alert-info mt-3">
                                                     <i className="bi bi-info-circle-fill me-2"></i>
                                                     The grand total includes material cost, delivery charges, and {parsedGstRate}% GST.
                                                 </div>
@@ -502,8 +501,9 @@
                                             </div>
                                         )}
                                     </div>
-                                    <div className="card-footer text-center py-3 text-muted" style={{ backgroundColor: 'rgba(255, 255, 255, 0.7)' }}>
-                                        <small>© 2025 Grand Total Calculator | Made with <i className="bi bi-heart-fill text-danger"></i> using React & Bootstrap</small>
+                                    <div className="card-footer bg-white text-center py-3 text-muted">
+                                        <small>© 2025 Grand Total Calculator | Made with <i className="bi bi-heart-fill text-danger"></i> by Aman Prasad</small><br/>
+                                        <small>Ramakrishna Mission Shilpamandira Computer Centre, Belur Math</small>
                                     </div>
                                 </div>
                             </div>

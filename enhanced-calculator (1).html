@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grand Total Calculator</title>
+    <!-- Bootstrap CSS CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- React and ReactDOM CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.21.4/babel.min.js"></script>
+    <!-- GSAP for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            overflow-x: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .calculation-card {
+            transition: all 0.3s ease;
+            background-color: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        
+        .calculation-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .result-section {
+            background-color: #f8f9fa;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .animated-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.2;
+            filter: blur(60px);
+        }
+        
+        .loader-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f8f9fa;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+        
+        .loader {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+            background: linear-gradient(0deg, rgba(13, 110, 253, 0.1) 33%, rgba(13, 110, 253, 1) 100%);
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+        
+        .loader::after {
+            content: '';
+            box-sizing: border-box;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: #f8f9fa;
+        }
+        
+        @keyframes rotation {
+            0% { transform: rotate(0deg) }
+            100% { transform: rotate(360deg) }
+        }
+        
+        .custom-input {
+            background-color: #ffffff;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            padding: 12px;
+            transition: all 0.3s;
+        }
+        
+        .custom-input:focus {
+            box-shadow: 0 5px 15px rgba(13, 110, 253, 0.1);
+            border-color: #0d6efd;
+        }
+        
+        .receipt {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .receipt-header {
+            text-align: center;
+            border-bottom: 2px dashed #ddd;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .print-button {
+            background: #0d6efd;
+            border: none;
+            color: white;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .print-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(13, 110, 253, 0.2);
+            background: #0b5ed7;
+        }
+        
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .receipt, .receipt * {
+                visibility: visible;
+            }
+            .receipt {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                box-shadow: none;
+            }
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+        
+        // Animated Background Component
+        const AnimatedBackground = () => {
+            const backgroundRef = useRef(null);
+            
+            useEffect(() => {
+                const colors = ['#0d6efd', '#6c757d', '#0dcaf0', '#20c997', '#0d6efd'];
+                const background = backgroundRef.current;
+                
+                // Create circles
+                for (let i = 0; i < 5; i++) {
+                    const circle = document.createElement('div');
+                    circle.classList.add('circle');
+                    
+                    // Random properties
+                    const size = Math.random() * 400 + 100;
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+                    
+                    // Apply styles
+                    circle.style.width = `${size}px`;
+                    circle.style.height = `${size}px`;
+                    circle.style.backgroundColor = color;
+                    
+                    // Random initial position
+                    circle.style.left = `${Math.random() * 100}%`;
+                    circle.style.top = `${Math.random() * 100}%`;
+                    
+                    background.appendChild(circle);
+                    
+                    // Animate with GSAP
+                    gsap.to(circle, {
+                        x: () => (Math.random() - 0.5) * window.innerWidth * 0.8,
+                        y: () => (Math.random() - 0.5) * window.innerHeight * 0.8,
+                        duration: 20 + Math.random() * 20,
+                        repeat: -1,
+                        yoyo: true,
+                        ease: "sine.inOut"
+                    });
+                }
+            }, []);
+            
+            return <div ref={backgroundRef} className="animated-background"></div>;
+        };
+        
+        // Loader Component
+        const Loader = ({ loading }) => {
+            return (
+                <div className="loader-container" style={{ opacity: loading ? 1 : 0, pointerEvents: loading ? 'all' : 'none' }}>
+                    <div className="loader"></div>
+                </div>
+            );
+        };
+        
+        // Receipt Component
+        const Receipt = ({ data, onClose }) => {
+            const receiptRef = useRef(null);
+            
+            const handlePrint = () => {
+                window.print();
+            };
+            
+            return (
+                <div className="modal-backdrop show">
+                    <div className="modal d-block" tabIndex="-1">
+                        <div className="modal-dialog modal-lg">
+                            <div className="modal-content">
+                                <div className="modal-header">
+                                    <h5 className="modal-title">Print Receipt</h5>
+                                    <button type="button" className="btn-close no-print" onClick={onClose}></button>
+                                </div>
+                                <div className="modal-body">
+                                    <div ref={receiptRef} className="receipt">
+                                        <div className="receipt-header">
+                                            <h3 className="mb-1">Grand Total Calculator</h3>
+                                            <p className="mb-0 text-muted">Receipt - {new Date().toLocaleString()}</p>
+                                        </div>
+                                        
+                                        <div className="receipt-details">
+                                            <table className="table table-borderless">
+                                                <tbody>
+                                                    <tr>
+                                                        <td><strong>Total Meters:</strong></td>
+                                                        <td>{data.totalMeters}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><strong>Rate per Meter:</strong></td>
+                                                        <td>₹{data.rate}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><strong>Material Cost:</strong></td>
+                                                        <td>₹{(data.totalMeters * data.rate).toFixed(2)}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><strong>Delivery Charges:</strong></td>
+                                                        <td>₹{data.deliveryCharges}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><strong>GST ({data.gstRate}%):</strong></td>
+                                                        <td>₹{data.gstAmount.toFixed(2)}</td>
+                                                    </tr>
+                                                    <tr className="border-top">
+                                                        <td className="h4">Grand Total:</td>
+                                                        <td className="h4 text-primary">₹{data.grandTotal.toFixed(2)}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        
+                                        <div className="text-center mt-4 mb-2">
+                                            <p className="mb-0">Thank you for using our calculator!</p>
+                                            <p className="small text-muted mt-3">Created by: Aman Prasad</p>
+                                            <p className="small text-muted">Ramakrishna Mission Shilpamandira Computer Centre, Belur Math</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="modal-footer no-print">
+                                    <button type="button" className="btn btn-secondary" onClick={onClose}>Close</button>
+                                    <button type="button" className="btn print-button" onClick={handlePrint}>
+                                        <i className="bi bi-printer me-2"></i>Print Receipt
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+        
+        function GrandTotalCalculator() {
+            const [totalMeters, setTotalMeters] = useState('');
+            const [rate, setRate] = useState('');
+            const [deliveryCharges, setDeliveryCharges] = useState('');
+            const [gstRate, setGstRate] = useState('5');
+            const [showResults, setShowResults] = useState(false);
+            const [loading, setLoading] = useState(true);
+            const [showReceipt, setShowReceipt] = useState(false);
+            
+            // Parse input values to numbers, defaulting to 0 if empty
+            const parsedTotalMeters = totalMeters === '' ? 0 : parseFloat(totalMeters);
+            const parsedRate = rate === '' ? 0 : parseFloat(rate);
+            const parsedDeliveryCharges = deliveryCharges === '' ? 0 : parseFloat(deliveryCharges);
+            const parsedGstRate = gstRate === '' ? 0 : parseFloat(gstRate);
+            
+            // Calculate values
+            const subtotal = parsedTotalMeters * parsedRate;
+            const gstAmount = (subtotal + parsedDeliveryCharges) * (parsedGstRate / 100);
+            const grandTotal = subtotal + parsedDeliveryCharges + gstAmount;
+            
+            // Format currency
+            const formatCurrency = (value) => {
+                return new Intl.NumberFormat('en-IN', { 
+                    style: 'currency', 
+                    currency: 'INR',
+                    maximumFractionDigits: 2 
+                }).format(value);
+            };
+            
+            // Handle reset
+            const handleReset = () => {
+                setTotalMeters('');
+                setRate('');
+                setDeliveryCharges('');
+                setGstRate('5');
+                setShowResults(false);
+            };
+            
+            // Show loader on page load
+            useEffect(() => {
+                const timer = setTimeout(() => {
+                    setLoading(false);
+                }, 2000);
+                
+                return () => clearTimeout(timer);
+            }, []);
+            
+            // Auto-calculate when inputs change
+            useEffect(() => {
+                if (totalMeters !== '' && rate !== '') {
+                    setShowResults(true);
+                } else {
+                    setShowResults(false);
+                }
+            }, [totalMeters, rate, deliveryCharges, gstRate]);
+            
+            // Create receipt data
+            const receiptData = {
+                totalMeters: parsedTotalMeters,
+                rate: parsedRate,
+                deliveryCharges: parsedDeliveryCharges,
+                gstRate: parsedGstRate,
+                gstAmount: gstAmount,
+                grandTotal: grandTotal
+            };
+            
+            return (
+                <>
+                    <AnimatedBackground />
+                    <Loader loading={loading} />
+                    
+                    <div className="container py-5">
+                        <div className="row justify-content-center">
+                            <div className="col-md-8">
+                                <div className="calculation-card shadow border-0">
+                                    <div className="card-header py-3 bg-primary text-white">
+                                        <h2 className="mb-0 text-center">
+                                            <i className="bi bi-calculator me-2"></i>
+                                            Grand Total Calculator
+                                        </h2>
+                                    </div>
+                                    <div className="card-body p-4">
+                                        <div className="row g-4">
+                                            <div className="col-md-6">
+                                                <label htmlFor="totalMeters" className="form-label fw-bold">
+                                                    <i className="bi bi-rulers me-2"></i>Total Meters
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    className="form-control form-control-lg custom-input"
+                                                    id="totalMeters"
+                                                    placeholder="Enter total meters"
+                                                    min="0"
+                                                    step="0.01"
+                                                    value={totalMeters}
+                                                    onChange={(e) => setTotalMeters(e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="col-md-6">
+                                                <label htmlFor="rate" className="form-label fw-bold">
+                                                    <i className="bi bi-tag me-2"></i>Rate per Meter
+                                                </label>
+                                                <div className="input-group">
+                                                    <span className="input-group-text">₹</span>
+                                                    <input
+                                                        type="number"
+                                                        className="form-control form-control-lg custom-input"
+                                                        id="rate"
+                                                        placeholder="Enter rate"
+                                                        min="0"
+                                                        step="0.01"
+                                                        value={rate}
+                                                        onChange={(e) => setRate(e.target.value)}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <label htmlFor="deliveryCharges" className="form-label fw-bold">
+                                                    <i className="bi bi-truck me-2"></i>Delivery Charges
+                                                </label>
+                                                <div className="input-group">
+                                                    <span className="input-group-text">₹</span>
+                                                    <input
+                                                        type="number"
+                                                        className="form-control form-control-lg custom-input"
+                                                        id="deliveryCharges"
+                                                        placeholder="Enter delivery charges"
+                                                        min="0"
+                                                        step="0.01"
+                                                        value={deliveryCharges}
+                                                        onChange={(e) => setDeliveryCharges(e.target.value)}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <label htmlFor="gstRate" className="form-label fw-bold">
+                                                    <i className="bi bi-percent me-2"></i>GST Rate
+                                                </label>
+                                                <div className="input-group">
+                                                    <input
+                                                        type="number"
+                                                        className="form-control form-control-lg custom-input"
+                                                        id="gstRate"
+                                                        placeholder="Enter GST rate"
+                                                        min="0"
+                                                        max="100"
+                                                        step="0.01"
+                                                        value={gstRate}
+                                                        onChange={(e) => setGstRate(e.target.value)}
+                                                    />
+                                                    <span className="input-group-text">%</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="col-12 mt-4 d-grid gap-2 d-md-flex justify-content-md-center">
+                                                <button type="button" className="btn btn-outline-secondary btn-lg px-5" onClick={handleReset}>
+                                                    <i className="bi bi-arrow-counterclockwise me-2"></i>Reset
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        {showResults && (
+                                            <div className="result-section mt-5 p-4 border animate__animated animate__fadeIn">
+                                                <h3 className="text-center mb-4 text-primary">Calculation Results</h3>
+                                                <div className="table-responsive">
+                                                    <table className="table table-borderless table-hover">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td className="fw-bold">Material Cost:</td>
+                                                                <td className="text-end">{formatCurrency(subtotal)}</td>
+                                                                <td className="small text-muted">({parsedTotalMeters} meters × ₹{parsedRate} per meter)</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td className="fw-bold">Delivery Charges:</td>
+                                                                <td className="text-end">{formatCurrency(parsedDeliveryCharges)}</td>
+                                                                <td></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td className="fw-bold">GST ({parsedGstRate}%):</td>
+                                                                <td className="text-end">{formatCurrency(gstAmount)}</td>
+                                                                <td></td>
+                                                            </tr>
+                                                            <tr className="border-top">
+                                                                <td className="fw-bold fs-5">Grand Total:</td>
+                                                                <td className="text-end fw-bold fs-5 text-primary">{formatCurrency(grandTotal)}</td>
+                                                                <td></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <div className="alert alert-info mt-3">
+                                                    <i className="bi bi-info-circle-fill me-2"></i>
+                                                    The grand total includes material cost, delivery charges, and {parsedGstRate}% GST.
+                                                </div>
+                                                <div className="d-grid">
+                                                    <button 
+                                                        className="btn print-button btn-lg mt-3" 
+                                                        onClick={() => setShowReceipt(true)}
+                                                        disabled={!showResults || (parsedTotalMeters <= 0 || parsedRate <= 0)}
+                                                    >
+                                                        <i className="bi bi-receipt me-2"></i>
+                                                        Generate Receipt
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="card-footer bg-white text-center py-3 text-muted">
+                                        <small>© 2025 Grand Total Calculator | Made with <i className="bi bi-heart-fill text-danger"></i> by Aman Prasad</small><br/>
+                                        <small>Ramakrishna Mission Shilpamandira Computer Centre, Belur Math</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {showReceipt && (
+                        <Receipt data={receiptData} onClose={() => setShowReceipt(false)} />
+                    )}
+                </>
+            );
+        }
+
+        // Render the app
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<GrandTotalCalculator />);
+    </script>
+</body>
+</html>
