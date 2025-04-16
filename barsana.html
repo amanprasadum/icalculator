@@ -178,10 +178,64 @@
             transform: scale(1.2);
         }
 
-        /* A5 Paper Size Print Styles */
+        /* A5 Invoice Styles */
         @page {
             size: A5;
-            margin: 10mm;
+            margin: 5mm;
+        }
+
+        .a5-receipt {
+            background-color: white;
+            padding: 10px;
+            border-radius: 10px;
+            max-width: 148mm;
+            /* A5 width */
+            height: 210mm;
+            /* A5 height */
+            margin: 0 auto;
+            font-size: 10px;
+            color: #000000;
+        }
+
+        .a5-receipt-header {
+            text-align: center;
+            border-bottom: 2px dashed #ddd;
+            padding-bottom: 8px;
+            margin-bottom: 8px;
+        }
+
+        .a5-receipt .table {
+            color: #000000;
+        }
+
+        .a5-receipt .table th,
+        .a5-receipt .table td {
+            padding: 5px;
+            font-size: 9px;
+        }
+
+        .a5-receipt h2 {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .a5-receipt h4 {
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .a5-receipt h5 {
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .a5-receipt p {
+            margin-bottom: 4px;
+            font-size: 10px;
+        }
+
+        .a5-receipt .row {
+            margin-bottom: 6px;
         }
 
         @media print {
@@ -189,70 +243,22 @@
                 visibility: hidden;
             }
 
-            .receipt,
-            .receipt * {
+            .a5-receipt,
+            .a5-receipt * {
                 visibility: visible;
             }
 
-            .receipt {
+            .a5-receipt {
                 position: absolute;
                 left: 0;
                 top: 0;
-                width: 148mm; /* A5 width */
-                height: 210mm; /* A5 height */
-                padding: 10mm;
-                margin: 0;
+                width: 148mm;
+                height: 210mm;
                 box-shadow: none;
-                font-weight: 500 !important;
-            }
-
-            .receipt-header h2 {
-                font-weight: 700 !important;
-            }
-
-            .receipt p, .receipt td, .receipt th {
-                color: #000 !important;
-                font-weight: 500 !important;
-            }
-
-            .receipt .table-light td, .receipt .table-light th {
-                font-weight: 700 !important;
             }
 
             .no-print {
                 display: none;
-            }
-            
-            /* Darker Fonts for Print */
-            .receipt * {
-                color: #000 !important;
-            }
-            
-            .receipt strong {
-                font-weight: 700 !important;
-            }
-            
-            .receipt h2, .receipt h4 {
-                font-weight: 700 !important;
-                color: #000 !important;
-            }
-            
-            .receipt .text-primary {
-                color: #000 !important;
-                font-weight: 700 !important;
-            }
-            
-            /* Make table headers darker */
-            .receipt thead th {
-                background-color: #ddd !important;
-                color: #000 !important;
-                font-weight: 700 !important;
-            }
-            
-            /* Bold the invoice title */
-            .receipt .receipt-header p {
-                font-weight: 700 !important;
-                font-size: 1.2rem !important;
             }
         }
     </style>
@@ -316,8 +322,8 @@
             );
         };
 
-        // Invoice Component
-        const Invoice = ({ data, onClose }) => {
+        // A5 Invoice Component
+        const A5Invoice = ({ data, onClose }) => {
             const invoiceRef = useRef(null);
 
             const handlePrint = () => {
@@ -330,40 +336,38 @@
             return (
                 <div className="modal-backdrop show">
                     <div className="modal d-block" tabIndex="-1">
-                        <div className="modal-dialog modal-xl">
+                        <div className="modal-dialog modal-lg">
                             <div className="modal-content">
                                 <div className="modal-header">
-                                    <h5 className="modal-title">Print Invoice</h5>
+                                    <h5 className="modal-title">Print Invoice (A5 Size)</h5>
                                     <button type="button" className="btn-close no-print" onClick={onClose}></button>
                                 </div>
                                 <div className="modal-body">
-                                    <div ref={invoiceRef} className="receipt">
-                                        <div className="receipt-header">
+                                    <div ref={invoiceRef} className="a5-receipt">
+                                        <div className="a5-receipt-header">
                                             <h2 className="mb-1">{data.firmName}</h2>
-                                            <p className="mb-0 fw-bold">TAX INVOICE</p>
+                                            <p className="mb-0"><strong>TAX INVOICE</strong></p>
                                         </div>
 
-                                        <div className="row mb-3">
-                                            <div className="col-md-6">
-                                                <p><strong>Invoice Date:</strong> {data.date}</p>
-                                                <p><strong>Token/Challan No:</strong> {data.tokenNo}</p>
+                                        <div className="row mb-2">
+                                            <div className="col-6">
+                                                <p><strong>Date:</strong> {data.date}</p>
+                                                <p><strong>Token No:</strong> {data.tokenNo}</p>
                                             </div>
-                                            <div className="col-md-6 text-md-end">
+                                            <div className="col-6 text-end">
                                                 <p><strong>Customer:</strong> {data.customerName}</p>
                                                 <p><strong>GST Bill:</strong> {data.isGstBill ? 'Yes' : 'No'}</p>
                                             </div>
                                         </div>
 
-                                        <div className="row mb-3">
+                                        <div className="row mb-2">
                                             <div className="col-12">
-                                                <p><strong>Item:</strong> {data.itemName}</p>
-                                                <p><strong>Finish Code:</strong> {data.finishCode}</p>
-                                                <p><strong>Rate:</strong> ₹{data.rate} per meter</p>
+                                                <p><strong>Item:</strong> {data.itemName} | <strong>Finish Code:</strong> {data.finishCode} | <strong>Rate:</strong> ₹{data.rate}/meter</p>
                                             </div>
                                         </div>
 
-                                        <div className="table-responsive mb-3">
-                                            <table className="table table-bordered">
+                                        <div className="table-responsive mb-2">
+                                            <table className="table table-bordered table-sm">
                                                 <thead className="table-light">
                                                     <tr>
                                                         <th>#</th>
@@ -392,10 +396,10 @@
                                         </div>
 
                                         <div className="row">
-                                            <div className="col-md-6">
-                                                <div className="card p-3 mb-3">
-                                                    <h5 className="fw-bold">Payment Details</h5>
-                                                    <table className="table table-borderless table-sm">
+                                            <div className="col-6">
+                                                <div className="p-2 mb-2 border rounded">
+                                                    <h5>Payment Details</h5>
+                                                    <table className="table table-borderless table-sm mb-0">
                                                         <tbody>
                                                             <tr>
                                                                 <td><strong>Material Cost:</strong></td>
@@ -425,19 +429,15 @@
                                                     </table>
                                                 </div>
                                             </div>
-                                            <div className="col-md-6">
-                                                <div className="card bg-light p-3">
-                                                    <h4 className="text-center mb-3 fw-bold">Grand Total</h4>
-                                                    <h2 className="text-center text-primary fw-bold">₹{data.roundedGrandTotal}</h2>
+                                            <div className="col-6">
+                                                <div className="p-2 bg-light border rounded">
+                                                    <h4 className="text-center mb-2">Grand Total</h4>
+                                                    <h2 className="text-center text-primary">₹{data.roundedGrandTotal}</h2>
                                                     <p className="text-center mb-0 small">
-                                                        {data.roundOff && <span className="text-success"><i className="bi bi-check-circle-fill me-1"></i>Rounded to nearest rupee</span>}
+                                                        {data.roundOff && <span className="text-success"><i className="bi bi-check-circle-fill me-1"></i>Rounded</span>}
                                                     </p>
                                                 </div>
                                             </div>
-                                        </div>
-
-                                        <div className="mt-4 text-center">
-                                            <p className="fw-bold mb-0">Authorized Signatory</p>
                                         </div>
                                     </div>
                                 </div>
@@ -781,99 +781,106 @@
                                                             <i className="bi bi-truck me-2"></i>
                                                             LR Details
                                                         </h4>
-                                                        <button 
-                                                            type="button" 
-                                                            className="btn btn-sm btn-primary" 
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-sm btn-primary"
                                                             onClick={addNewEntry}
                                                         >
-                                                            <i className="bi bi-plus-circle me-1"></i>
-                                                            Add Entry
+                                                            <i className="bi bi-plus-circle me-1"></i> Add Entry
                                                         </button>
                                                     </div>
-                                                </div>
 
-                                                {errors.entries && (
-                                                    <div className="col-12 mb-3">
-                                                        <div className="alert alert-danger">
+
+                                                    {errors.entries && (
+                                                        <div className="alert alert-danger py-2 mb-3">
                                                             {errors.entries}
                                                         </div>
-                                                    </div>
-                                                )}
+                                                    )}
 
-                                                {entries.map((entry, index) => (
-                                                    <div className="row entry-row mb-3" key={index}>
-                                                        <div className="col-md-3 mb-2">
-                                                            <input
-                                                                type="text"
-                                                                className="form-control custom-input"
-                                                                placeholder="LR Number"
-                                                                value={entry.lrNo}
-                                                                onChange={(e) => updateEntry(index, 'lrNo', e.target.value)}
-                                                            />
-                                                        </div>
-                                                        <div className="col-md-3 mb-2">
-                                                            <input
-                                                                type="text"
-                                                                className="form-control custom-input"
-                                                                placeholder="Bale Number"
-                                                                value={entry.baleNo}
-                                                                onChange={(e) => updateEntry(index, 'baleNo', e.target.value)}
-                                                            />
-                                                        </div>
-                                                        <div className="col-md-3 mb-2">
-                                                            <input
-                                                                type="text"
-                                                                className="form-control custom-input"
-                                                                placeholder="Color"
-                                                                value={entry.color}
-                                                                onChange={(e) => updateEntry(index, 'color', e.target.value)}
-                                                            />
-                                                        </div>
-                                                        <div className="col-md-2 mb-2">
-                                                            <input
-                                                                type="number"
-                                                                className="form-control custom-input"
-                                                                placeholder="Meters"
-                                                                value={entry.meters}
-                                                                onChange={(e) => updateEntry(index, 'meters', e.target.value)}
-                                                                min="0"
-                                                                step="0.01"
-                                                            />
-                                                        </div>
-                                                        <div className="col-md-1 mb-2 d-flex align-items-center">
-                                                            {entries.length > 1 && (
-                                                                <button
-                                                                    type="button"
-                                                                    className="btn btn-link text-danger p-0 delete-btn"
-                                                                    onClick={() => removeEntry(index)}
-                                                                >
-                                                                    <i className="bi bi-trash-fill"></i>
-                                                                </button>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                ))}
-
-                                                <div className="col-12">
-                                                    <div className="alert alert-info d-flex justify-content-between align-items-center">
-                                                        <span>
-                                                            <i className="bi bi-info-circle me-2"></i>
-                                                            Total Meters: <strong>{totalMeters.toFixed(2)}</strong>
-                                                        </span>
-                                                        <span>
-                                                            <i className="bi bi-currency-rupee me-1"></i>
-                                                            Amount: <strong>{formatCurrency(subtotal)}</strong>
-                                                        </span>
+                                                    <div className="table-responsive">
+                                                        <table className="table table-bordered">
+                                                            <thead className="table-light">
+                                                                <tr>
+                                                                    <th>LR Number</th>
+                                                                    <th>Bale Number</th>
+                                                                    <th>Color</th>
+                                                                    <th>Metres</th>
+                                                                    <th width="50">Action</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {entries.map((entry, index) => (
+                                                                    <tr key={index} className="entry-row">
+                                                                        <td>
+                                                                            <input
+                                                                                type="text"
+                                                                                className="form-control custom-input"
+                                                                                placeholder="LR No."
+                                                                                value={entry.lrNo}
+                                                                                onChange={(e) => updateEntry(index, 'lrNo', e.target.value)}
+                                                                            />
+                                                                        </td>
+                                                                        <td>
+                                                                            <input
+                                                                                type="text"
+                                                                                className="form-control custom-input"
+                                                                                placeholder="Bale No."
+                                                                                value={entry.baleNo}
+                                                                                onChange={(e) => updateEntry(index, 'baleNo', e.target.value)}
+                                                                            />
+                                                                        </td>
+                                                                        <td>
+                                                                            <input
+                                                                                type="text"
+                                                                                className="form-control custom-input"
+                                                                                placeholder="Color"
+                                                                                value={entry.color}
+                                                                                onChange={(e) => updateEntry(index, 'color', e.target.value)}
+                                                                            />
+                                                                        </td>
+                                                                        <td>
+                                                                            <input
+                                                                                type="number"
+                                                                                className="form-control custom-input"
+                                                                                placeholder="Metres"
+                                                                                value={entry.meters}
+                                                                                onChange={(e) => updateEntry(index, 'meters', e.target.value)}
+                                                                                min="0"
+                                                                                step="0.01"
+                                                                            />
+                                                                        </td>
+                                                                        <td className="text-center">
+                                                                            {entries.length > 1 && (
+                                                                                <button
+                                                                                    type="button"
+                                                                                    className="btn btn-sm btn-link p-0 delete-btn"
+                                                                                    onClick={() => removeEntry(index)}
+                                                                                >
+                                                                                    <i className="bi bi-trash"></i>
+                                                                                </button>
+                                                                            )}
+                                                                        </td>
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                            <tfoot className="table-light">
+                                                                <tr>
+                                                                    <td colSpan="3" className="text-end fw-bold">Total Metres:</td>
+                                                                    <td className="fw-bold">{totalMeters.toFixed(2)}</td>
+                                                                    <td></td>
+                                                                </tr>
+                                                            </tfoot>
+                                                        </table>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            {/* Additional Costs */}
+                                            {/* Additional Costs & Calculations */}
                                             <div className="row mb-4">
                                                 <div className="col-12">
                                                     <h4 className="mb-3">
-                                                        <i className="bi bi-cash-coin me-2"></i>
-                                                        Additional Costs & Settings
+                                                        <i className="bi bi-calculator me-2"></i>
+                                                        Additional Costs
                                                     </h4>
                                                 </div>
 
@@ -922,14 +929,14 @@
                                                             value={gstRate}
                                                             onChange={(e) => setGstRate(e.target.value)}
                                                             min="0"
-                                                            max="28"
                                                             step="0.01"
+                                                            disabled={!isGstBill}
                                                         />
                                                         <span className="input-group-text">%</span>
                                                     </div>
                                                 </div>
 
-                                                <div className="col-md-6 mb-3">
+                                                <div className="col-md-12 mb-3">
                                                     <div className="form-check form-switch">
                                                         <input
                                                             className="form-check-input"
@@ -939,88 +946,92 @@
                                                             onChange={(e) => setRoundOff(e.target.checked)}
                                                         />
                                                         <label className="form-check-label" htmlFor="roundOffSwitch">
-                                                            Round off to nearest rupee
+                                                            Round Off Grand Total
                                                         </label>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            {/* Results Section */}
-                                            <div className="result-section p-4 mb-4">
-                                                <h4 className="mb-3 text-center">
-                                                    <i className="bi bi-calculator me-2"></i>
-                                                    Calculation Summary
-                                                </h4>
+                                            {/* Calculation Results */}
+                                            <div className="row mb-4">
+                                                <div className="col-12">
+                                                    <div className="result-section p-3">
+                                                        <h4 className="mb-3 text-center">Calculation Summary</h4>
 
-                                                <div className="row">
-                                                    <div className="col-md-6">
-                                                        <table className="table table-sm">
-                                                            <tbody>
-                                                                <tr>
-                                                                    <td>Material Cost:</td>
-                                                                    <td className="text-end">{formatCurrency(subtotal)}</td>
-                                                                </tr>
-                                                                {parsedDiscount > 0 && (
-                                                                    <tr>
-                                                                        <td>After Discount:</td>
-                                                                        <td className="text-end">{formatCurrency(afterDiscount)}</td>
-                                                                    </tr>
-                                                                )}
-                                                                {parsedDeliveryCharges > 0 && (
-                                                                    <tr>
-                                                                        <td>Delivery Charges:</td>
-                                                                        <td className="text-end">{formatCurrency(parsedDeliveryCharges)}</td>
-                                                                    </tr>
-                                                                )}
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                    <div className="col-md-6">
-                                                        <table className="table table-sm">
-                                                            <tbody>
-                                                                <tr>
-                                                                    <td>GST ({parsedGstRate}%):</td>
-                                                                    <td className="text-end">{formatCurrency(gstAmount)}</td>
-                                                                </tr>
-                                                                <tr className="fw-bold">
-                                                                    <td>Grand Total:</td>
-                                                                    <td className="text-end">{formatCurrency(grandTotal)}</td>
-                                                                </tr>
-                                                                {roundOff && (
-                                                                    <tr className="fw-bold text-primary">
-                                                                        <td>Rounded Total:</td>
-                                                                        <td className="text-end">{formatCurrency(roundedGrandTotal)}</td>
-                                                                    </tr>
-                                                                )}
-                                                            </tbody>
-                                                        </table>
-                                                        {roundOff && roundOffAmount !== 0 && (
-                                                            <p className="text-end round-off mb-0">
-                                                                <small>
-                                                                    <i className="bi bi-info-circle me-1"></i>
-                                                                    Round Off: {roundOffAmount > 0 ? '+' : ''}{formatCurrency(roundOffAmount)}
-                                                                </small>
-                                                            </p>
-                                                        )}
+                                                        <div className="row">
+                                                            <div className="col-md-6">
+                                                                <table className="table table-sm">
+                                                                    <tbody>
+                                                                        <tr>
+                                                                            <td>Material Cost:</td>
+                                                                            <td className="text-end">{formatCurrency(subtotal)}</td>
+                                                                        </tr>
+                                                                        {parsedDiscount > 0 && (
+                                                                            <tr>
+                                                                                <td>Discount:</td>
+                                                                                <td className="text-end">- {formatCurrency(parsedDiscount)}</td>
+                                                                            </tr>
+                                                                        )}
+                                                                        <tr>
+                                                                            <td>After Discount:</td>
+                                                                            <td className="text-end">{formatCurrency(afterDiscount)}</td>
+                                                                        </tr>
+                                                                        {parsedDeliveryCharges > 0 && (
+                                                                            <tr>
+                                                                                <td>Delivery Charges:</td>
+                                                                                <td className="text-end">{formatCurrency(parsedDeliveryCharges)}</td>
+                                                                            </tr>
+                                                                        )}
+                                                                        {isGstBill && (
+                                                                            <tr>
+                                                                                <td>GST ({parsedGstRate}%):</td>
+                                                                                <td className="text-end">{formatCurrency(gstAmount)}</td>
+                                                                            </tr>
+                                                                        )}
+                                                                        {roundOff && roundOffAmount !== 0 && (
+                                                                            <tr>
+                                                                                <td>Round Off:</td>
+                                                                                <td className="text-end">
+                                                                                    {roundOffAmount > 0 ? '+ ' : '- '}
+                                                                                    {formatCurrency(Math.abs(roundOffAmount))}
+                                                                                </td>
+                                                                            </tr>
+                                                                        )}
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                            <div className="col-md-6">
+                                                                <div className="d-flex flex-column align-items-center justify-content-center h-100">
+                                                                    <h4 className="mb-2">Grand Total</h4>
+                                                                    <h2 className="text-primary mb-0">{formatCurrency(roundedGrandTotal)}</h2>
+                                                                    {roundOff && roundOffAmount !== 0 && (
+                                                                        <p className="round-off mb-0">
+                                                                            <i className="bi bi-check-circle-fill me-1"></i>
+                                                                            Rounded ({roundOffAmount > 0 ? 'up' : 'down'})
+                                                                        </p>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            {/* Form Actions */}
-                                            <div className="d-flex justify-content-between">
+                                            {/* Action Buttons */}
+                                            <div className="d-flex justify-content-between mt-4">
                                                 <button
                                                     type="button"
                                                     className="btn btn-outline-secondary px-4"
                                                     onClick={handleReset}
                                                 >
-                                                    <i className="bi bi-arrow-counterclockwise me-2"></i>
+                                                    <i className="bi bi-arrow-repeat me-2"></i>
                                                     Reset
                                                 </button>
                                                 <button
                                                     type="submit"
                                                     className="btn btn-primary px-4"
                                                 >
-                                                    <i className="bi bi-printer me-2"></i>
+                                                    <i className="bi bi-receipt me-2"></i>
                                                     Generate Invoice
                                                 </button>
                                             </div>
@@ -1032,7 +1043,7 @@
                     </div>
 
                     {showInvoice && (
-                        <Invoice
+                        <A5Invoice
                             data={invoiceData}
                             onClose={() => setShowInvoice(false)}
                         />
@@ -1041,7 +1052,17 @@
             );
         }
 
-        ReactDOM.render(<EnhancedCalculator />, document.getElementById('root'));
+        // Main App Component
+        const App = () => {
+            return (
+                <div className="app">
+                    <EnhancedCalculator />
+                </div>
+            );
+        };
+
+        // Render the App
+        ReactDOM.render(<App />, document.getElementById('root'));
     </script>
 </body>
 
