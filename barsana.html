@@ -357,6 +357,7 @@
                                         <div className="row mb-2">
                                             <div className="col-6">
                                                 <p><strong>Date:</strong> {data.date}</p>
+                                                <p><strong>Challan No:</strong> {data.challNo}</p>
                                                 <p><strong>Token No:</strong> {data.tokenNo}</p>
                                             </div>
                                             <div className="col-6 text-end">
@@ -464,6 +465,7 @@
             const [firmName, setFirmName] = useState("B.P.TRADING PVT LTD");
             const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
             const [tokenNo, setTokenNo] = useState('');
+            const [challNo, setchallNo] = useState('');
             const [customerName, setCustomerName] = useState('');
 
             // Item Details
@@ -552,7 +554,8 @@
                 const newErrors = {};
 
                 // Validate required fields
-                if (!tokenNo) newErrors.tokenNo = "Token/Challan number is required";
+                if (!challNo) newErrors.challNo = "Challan number is required";
+                if (!tokenNo) newErrors.tokenNo = "Token number is required";
                 if (!customerName) newErrors.customerName = "Customer name is required";
                 if (!itemName) newErrors.itemName = "Item name is required";
                 if (!finishCode) newErrors.finishCode = "Finish code is required";
@@ -599,6 +602,7 @@
                 firmName,
                 date,
                 tokenNo,
+                challNo,
                 customerName,
                 itemName,
                 finishCode,
@@ -680,6 +684,18 @@
                                                     />
                                                 </div>
 
+                                                <div className="col-md-6 mb-3">
+                                                    <label htmlFor="challNo" className="form-label fw-bold">Challan No.</label>
+                                                    <input
+                                                        type="text"
+                                                        className={`form-control custom-input ${errors.challNo ? 'is-invalid' : ''}`}
+                                                        id="challNo"
+                                                        placeholder="Enter token or challan number"
+                                                        value={challNo}
+                                                        onChange={(e) => setchallNo(e.target.value)}
+                                                    />
+                                                    {errors.challNo && <div className="invalid-feedback">{errors.challNo}</div>}
+                                                </div>
                                                 <div className="col-md-6 mb-3">
                                                     <label htmlFor="tokenNo" className="form-label fw-bold">Token/Challan No.</label>
                                                     <input
