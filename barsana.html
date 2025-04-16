@@ -344,7 +344,7 @@
                         <div className="modal-dialog modal-lg">
                             <div className="modal-content">
                                 <div className="modal-header">
-                                    <h5 className="modal-title">Print Invoice (A5 Size)</h5>
+                                   
                                     <button type="button" className="btn-close no-print" onClick={onClose}></button>
                                 </div>
                                 <div className="modal-body">
@@ -389,12 +389,12 @@
                                                             <td>{entry.lrNo}</td>
                                                             <td>{entry.baleNo}</td>
                                                             <td>{entry.color}</td>
-                                                            <td className="text-end">{parseFloat(entry.meters).toFixed(2)}</td>
+                                                            <td className="text-end-">{parseFloat(entry.meters).toFixed(2)}</td>
                                                         </tr>
                                                     ))}
                                                     <tr className="table-light">
                                                         <td colSpan="4" className="text-end fw-bold">Total Metres:</td>
-                                                        <td className="text-end fw-bold">{totalMeters.toFixed(2)}</td>
+                                                        <td className="text-end- fw-bold">{totalMeters.toFixed(2)}</td>
                                                     </tr>
                                                 </tbody>
                                             </table>
