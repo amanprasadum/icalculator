@@ -465,7 +465,7 @@
             const [firmName, setFirmName] = useState("B.P.TRADING PVT LTD");
             const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
             const [tokenNo, setTokenNo] = useState('');
-            const [challNo, setchallNo] = useState('');
+            const [challNo, setchallNo] = useState(1000);
             const [customerName, setCustomerName] = useState('');
 
             // Item Details
@@ -693,7 +693,8 @@
                                                         id="challNo"
                                                         placeholder="Enter challan number"
                                                         value={challNo}
-                                                        onChange={(e) => setchallNo(e.target.value)}
+                                                        // onChange={(e) => setchallNo(e.target.value)}
+                                                        onChange={() => setchallNo(setchallNo + 1 )}
                                                     />
                                                     {errors.challNo && <div className="invalid-feedback">{errors.challNo}</div>}
                                                 </div>
