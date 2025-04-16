@@ -1071,9 +1071,17 @@
                     </div>
 
                     {showInvoice && (
+                        // <A5Invoice
+                        //     data={invoiceData}
+                        //     onClose={() => setShowInvoice(false)}
+                        // />
                         <A5Invoice
                             data={invoiceData}
-                            onClose={() => setShowInvoice(false)}
+                            onClose={() => {
+                                challanCounter++;              // Increment AFTER printing
+                                setShowInvoice(false);        // Hide invoice
+                                setchallNo(challanCounter.toString());  // Prepare next challan
+                            }}
                         />
                     )}
                 </>
