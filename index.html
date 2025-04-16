@@ -258,6 +258,12 @@
                                                         <td><strong>Material Cost:</strong></td>
                                                         <td>₹{(data.totalMeters * data.rate).toFixed(2)}</td>
                                                     </tr>
+                                                    {data.discount > 0 && (
+                                                        <tr>
+                                                            <td><strong>Discount:</strong></td>
+                                                            <td>₹{data.discount.toFixed(2)}</td>
+                                                        </tr>
+                                                    )}
                                                     <tr>
                                                         <td><strong>Delivery Charges:</strong></td>
                                                         <td>₹{data.deliveryCharges}</td>
@@ -297,6 +303,7 @@
         function GrandTotalCalculator() {
             const [totalMeters, setTotalMeters] = useState('');
             const [rate, setRate] = useState('');
+            const [discount, setDiscount] = useState('');
             const [deliveryCharges, setDeliveryCharges] = useState('');
             const [gstRate, setGstRate] = useState('5');
             const [showResults, setShowResults] = useState(false);
@@ -306,13 +313,15 @@
             // Parse input values to numbers, defaulting to 0 if empty
             const parsedTotalMeters = totalMeters === '' ? 0 : parseFloat(totalMeters);
             const parsedRate = rate === '' ? 0 : parseFloat(rate);
+            const parsedDiscount = discount === '' ? 0 : parseFloat(discount);
             const parsedDeliveryCharges = deliveryCharges === '' ? 0 : parseFloat(deliveryCharges);
             const parsedGstRate = gstRate === '' ? 0 : parseFloat(gstRate);
             
             // Calculate values
             const subtotal = parsedTotalMeters * parsedRate;
-            const gstAmount = (subtotal + parsedDeliveryCharges) * (parsedGstRate / 100);
-            const grandTotal = subtotal + parsedDeliveryCharges + gstAmount;
+            const afterDiscount = Math.max(0, subtotal - parsedDiscount);
+            const gstAmount = (afterDiscount + parsedDeliveryCharges) * (parsedGstRate / 100);
+            const grandTotal = afterDiscount + parsedDeliveryCharges + gstAmount;
             
             // Format currency
             const formatCurrency = (value) => {
@@ -327,6 +336,7 @@
             const handleReset = () => {
                 setTotalMeters('');
                 setRate('');
+                setDiscount('');
                 setDeliveryCharges('');
                 setGstRate('5');
                 setShowResults(false);
@@ -348,12 +358,13 @@
                 } else {
                     setShowResults(false);
                 }
-            }, [totalMeters, rate, deliveryCharges, gstRate]);
+            }, [totalMeters, rate, discount, deliveryCharges, gstRate]);
             
             // Create receipt data
             const receiptData = {
                 totalMeters: parsedTotalMeters,
                 rate: parsedRate,
+                discount: parsedDiscount,
                 deliveryCharges: parsedDeliveryCharges,
                 gstRate: parsedGstRate,
                 gstAmount: gstAmount,
@@ -407,6 +418,24 @@
                                                         step="0.01"
                                                         value={rate}
                                                         onChange={(e) => setRate(e.target.value)}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <label htmlFor="discount" className="form-label fw-bold">
+                                                    <i className="bi bi-currency-exchange me-2"></i>Discount
+                                                </label>
+                                                <div className="input-group">
+                                                    <span className="input-group-text">₹</span>
+                                                    <input
+                                                        type="number"
+                                                        className="form-control form-control-lg custom-input"
+                                                        id="discount"
+                                                        placeholder="Enter discount amount"
+                                                        min="0"
+                                                        step="0.01"
+                                                        value={discount}
+                                                        onChange={(e) => setDiscount(e.target.value)}
                                                     />
                                                 </div>
                                             </div>
@@ -466,6 +495,20 @@
                                                                 <td className="text-end">{formatCurrency(subtotal)}</td>
                                                                 <td className="small text-muted">({parsedTotalMeters} meters × ₹{parsedRate} per meter)</td>
                                                             </tr>
+                                                            {parsedDiscount > 0 && (
+                                                                <tr>
+                                                                    <td className="fw-bold">Discount:</td>
+                                                                    <td className="text-end text-danger">-{formatCurrency(parsedDiscount)}</td>
+                                                                    <td></td>
+                                                                </tr>
+                                                            )}
+                                                            {parsedDiscount > 0 && (
+                                                                <tr>
+                                                                    <td className="fw-bold">After Discount:</td>
+                                                                    <td className="text-end">{formatCurrency(afterDiscount)}</td>
+                                                                    <td></td>
+                                                                </tr>
+                                                            )}
                                                             <tr>
                                                                 <td className="fw-bold">Delivery Charges:</td>
                                                                 <td className="text-end">{formatCurrency(parsedDeliveryCharges)}</td>
@@ -486,7 +529,7 @@
                                                 </div>
                                                 <div className="alert alert-info mt-3">
                                                     <i className="bi bi-info-circle-fill me-2"></i>
-                                                    The grand total includes material cost, delivery charges, and {parsedGstRate}% GST.
+                                                    The grand total includes material cost, {parsedDiscount > 0 ? 'less discount, ' : ''}delivery charges, and {parsedGstRate}% GST.
                                                 </div>
                                                 <div className="d-grid">
                                                     <button 
