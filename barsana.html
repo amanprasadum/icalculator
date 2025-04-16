@@ -390,6 +390,7 @@
                                                         <tr key={index}>
                                                             <td>{index + 1}</td>
                                                             <td>{entry.lrNo}</td>
+                                                            <td>{entry.FinishCode}</td>
                                                             <td>{entry.baleNo}</td>
                                                             <td>{entry.color}</td>
                                                             <td className="text-end-">{parseFloat(entry.meters).toFixed(2)}</td>
@@ -483,7 +484,7 @@
 
             // Entry items (LR details)
             const [entries, setEntries] = useState([
-                { lrNo: '', baleNo: '', color: '', meters: '' }
+                { lrNo: '', FinishCode: '', baleNo: '', color: '', meters: '' }
             ]);
 
             // Additional costs
@@ -504,7 +505,7 @@
 
             // Add a new entry row
             const addNewEntry = () => {
-                setEntries([...entries, { lrNo: '', baleNo: '', color: '', meters: '' }]);
+                setEntries([...entries, { lrNo: '', FinishCode: '', baleNo: '', color: '', meters: '' }]);
             };
 
             // Remove an entry row
@@ -571,7 +572,7 @@
                 // Validate entries
                 let hasEntryErrors = false;
                 entries.forEach((entry, index) => {
-                    if (!entry.lrNo || !entry.baleNo || !entry.color || !entry.meters) {
+                    if (!entry.lrNo || !entry.FinishCode || !entry.baleNo || !entry.color || !entry.meters) {
                         hasEntryErrors = true;
                     }
                 });
@@ -599,7 +600,7 @@
                 setItemName('');
                 setFinishCode('');
                 setRate('');
-                setEntries([{ lrNo: '', baleNo: '', color: '', meters: '' }]);
+                setEntries([{ lrNo: '', FinishCode: '', baleNo: '', color: '', meters: '' }]);
                 setDiscount('');
                 setDeliveryCharges('');
                 setGstRate('5');
@@ -847,6 +848,15 @@
                                                                                 placeholder="LR No."
                                                                                 value={entry.lrNo}
                                                                                 onChange={(e) => updateEntry(index, 'lrNo', e.target.value)}
+                                                                            />
+                                                                        </td>
+                                                                        <td>
+                                                                            <input
+                                                                                type="text"
+                                                                                className="form-control custom-input"
+                                                                                placeholder="FinishCode"
+                                                                                value={entry.FinishCode}
+                                                                                onChange={(e) => updateEntry(index, 'FinishCode', e.target.value)}
                                                                             />
                                                                         </td>
                                                                         <td>
