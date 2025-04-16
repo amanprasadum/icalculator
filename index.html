@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grand Total Calculator</title>
+    <title>Enhanced Invoice Calculator</title>
     <!-- Bootstrap CSS CDN -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons CDN -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css"
+        rel="stylesheet">
     <!-- React and ReactDOM CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -21,25 +23,25 @@
             overflow-x: hidden;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
         .calculation-card {
             transition: all 0.3s ease;
             background-color: #ffffff;
             border-radius: 16px;
             overflow: hidden;
         }
-        
+
         .calculation-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
         }
-        
+
         .result-section {
             background-color: #f8f9fa;
             border-radius: 0.5rem;
             transition: all 0.3s ease;
         }
-        
+
         .animated-background {
             position: fixed;
             top: 0;
@@ -48,14 +50,14 @@
             height: 100%;
             z-index: -1;
         }
-        
+
         .circle {
             position: absolute;
             border-radius: 50%;
             opacity: 0.2;
             filter: blur(60px);
         }
-        
+
         .loader-container {
             position: fixed;
             top: 0;
@@ -69,7 +71,7 @@
             z-index: 9999;
             transition: opacity 0.5s ease;
         }
-        
+
         .loader {
             width: 100px;
             height: 100px;
@@ -80,7 +82,7 @@
             box-sizing: border-box;
             animation: rotation 1s linear infinite;
         }
-        
+
         .loader::after {
             content: '';
             box-sizing: border-box;
@@ -93,12 +95,17 @@
             border-radius: 50%;
             background: #f8f9fa;
         }
-        
+
         @keyframes rotation {
-            0% { transform: rotate(0deg) }
-            100% { transform: rotate(360deg) }
+            0% {
+                transform: rotate(0deg)
+            }
+
+            100% {
+                transform: rotate(360deg)
+            }
         }
-        
+
         .custom-input {
             background-color: #ffffff;
             border: 1px solid #ced4da;
@@ -106,27 +113,27 @@
             padding: 12px;
             transition: all 0.3s;
         }
-        
+
         .custom-input:focus {
             box-shadow: 0 5px 15px rgba(13, 110, 253, 0.1);
             border-color: #0d6efd;
         }
-        
+
         .receipt {
             background-color: white;
             padding: 20px;
             border-radius: 10px;
-            max-width: 500px;
+            max-width: 800px;
             margin: 0 auto;
         }
-        
+
         .receipt-header {
             text-align: center;
             border-bottom: 2px dashed #ddd;
             padding-bottom: 15px;
             margin-bottom: 20px;
         }
-        
+
         .print-button {
             background: #0d6efd;
             border: none;
@@ -134,25 +141,53 @@
             border-radius: 8px;
             transition: all 0.3s;
         }
-        
+
         .print-button:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(13, 110, 253, 0.2);
             background: #0b5ed7;
         }
-        
+
         .round-off {
             font-size: 0.9rem;
             color: #28a745;
         }
-        
+
+        .entry-row {
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .delete-btn {
+            transition: all 0.2s;
+        }
+
+        .delete-btn:hover {
+            color: #dc3545;
+            transform: scale(1.2);
+        }
+
         @media print {
             body * {
                 visibility: hidden;
             }
-            .receipt, .receipt * {
+
+            .receipt,
+            .receipt * {
                 visibility: visible;
             }
+
             .receipt {
                 position: absolute;
                 left: 0;
@@ -160,46 +195,48 @@
                 width: 100%;
                 box-shadow: none;
             }
+
             .no-print {
                 display: none;
             }
         }
     </style>
 </head>
+
 <body>
     <div id="root"></div>
-    
+
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
-        
+
         // Animated Background Component
         const AnimatedBackground = () => {
             const backgroundRef = useRef(null);
-            
+
             useEffect(() => {
                 const colors = ['#0d6efd', '#6c757d', '#0dcaf0', '#20c997', '#0d6efd'];
                 const background = backgroundRef.current;
-                
+
                 // Create circles
                 for (let i = 0; i < 5; i++) {
                     const circle = document.createElement('div');
                     circle.classList.add('circle');
-                    
+
                     // Random properties
                     const size = Math.random() * 400 + 100;
                     const color = colors[Math.floor(Math.random() * colors.length)];
-                    
+
                     // Apply styles
                     circle.style.width = `${size}px`;
                     circle.style.height = `${size}px`;
                     circle.style.backgroundColor = color;
-                    
+
                     // Random initial position
                     circle.style.left = `${Math.random() * 100}%`;
                     circle.style.top = `${Math.random() * 100}%`;
-                    
+
                     background.appendChild(circle);
-                    
+
                     // Animate with GSAP
                     gsap.to(circle, {
                         x: () => (Math.random() - 0.5) * window.innerWidth * 0.8,
@@ -211,10 +248,10 @@
                     });
                 }
             }, []);
-            
+
             return <div ref={backgroundRef} className="animated-background"></div>;
         };
-        
+
         // Loader Component
         const Loader = ({ loading }) => {
             return (
@@ -223,85 +260,149 @@
                 </div>
             );
         };
-        
-        // Receipt Component
-        const Receipt = ({ data, onClose }) => {
-            const receiptRef = useRef(null);
-            
+
+        // Invoice Component
+        const Invoice = ({ data, onClose }) => {
+            const invoiceRef = useRef(null);
+
             const handlePrint = () => {
                 window.print();
             };
-            
+
+            // Calculate total meters
+            const totalMeters = data.entries.reduce((sum, entry) => sum + parseFloat(entry.meters || 0), 0);
+
             return (
                 <div className="modal-backdrop show">
                     <div className="modal d-block" tabIndex="-1">
-                        <div className="modal-dialog modal-lg">
+                        <div className="modal-dialog modal-xl">
                             <div className="modal-content">
                                 <div className="modal-header">
-                                    <h5 className="modal-title">Print Receipt</h5>
+                                    <h5 className="modal-title">Print Invoice</h5>
                                     <button type="button" className="btn-close no-print" onClick={onClose}></button>
                                 </div>
                                 <div className="modal-body">
-                                    <div ref={receiptRef} className="receipt">
+                                    <div ref={invoiceRef} className="receipt">
                                         <div className="receipt-header">
-                                            <h3 className="mb-1">Grand Total Calculator</h3>
-                                            <p className="mb-0 text-muted">Receipt - {new Date().toLocaleString()}</p>
+                                            <h2 className="mb-1">{data.firmName}</h2>
+                                            <p className="mb-0">TAX INVOICE</p>
                                         </div>
-                                        
-                                        <div className="receipt-details">
-                                            <table className="table table-borderless">
+
+                                        <div className="row mb-4">
+                                            <div className="col-md-6">
+                                                <p><strong>Invoice Date:</strong> {data.date}</p>
+                                                <p><strong>Token/Challan No:</strong> {data.tokenNo}</p>
+                                            </div>
+                                            <div className="col-md-6 text-md-end">
+                                                <p><strong>Customer:</strong> {data.customerName}</p>
+                                                <p><strong>GST Bill:</strong> {data.isGstBill ? 'Yes' : 'No'}</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="row mb-3">
+                                            <div className="col-12">
+                                                <p><strong>Item:</strong> {data.itemName}</p>
+                                                <p><strong>Finish Code:</strong> {data.finishCode}</p>
+                                                <p><strong>Rate:</strong> ₹{data.rate} per meter</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="table-responsive mb-4">
+                                            <table className="table table-bordered">
+                                                <thead className="table-light">
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>LR Number</th>
+                                                        <th>Bale Number</th>
+                                                        <th>Color</th>
+                                                        <th>Metres</th>
+                                                    </tr>
+                                                </thead>
                                                 <tbody>
-                                                    <tr>
-                                                        <td><strong>Total Meters:</strong></td>
-                                                        <td>{data.totalMeters}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td><strong>Rate per Meter:</strong></td>
-                                                        <td>₹{data.rate}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td><strong>Material Cost:</strong></td>
-                                                        <td>₹{(data.totalMeters * data.rate).toFixed(2)}</td>
-                                                    </tr>
-                                                    {data.discount > 0 && (
-                                                        <tr>
-                                                            <td><strong>Discount:</strong></td>
-                                                            <td>₹{data.discount.toFixed(2)}</td>
+                                                    {data.entries.map((entry, index) => (
+                                                        <tr key={index}>
+                                                            <td>{index + 1}</td>
+                                                            <td>{entry.lrNo}</td>
+                                                            <td>{entry.baleNo}</td>
+                                                            <td>{entry.color}</td>
+                                                            <td className="text-end">{parseFloat(entry.meters).toFixed(2)}</td>
                                                         </tr>
-                                                    )}
-                                                    <tr>
-                                                        <td><strong>Delivery Charges:</strong></td>
-                                                        <td>₹{data.deliveryCharges}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td><strong>GST ({data.gstRate}%):</strong></td>
-                                                        <td>₹{data.gstAmount.toFixed(2)}</td>
-                                                    </tr>
-                                                    {data.roundOffAmount !== 0 && (
-                                                        <tr>
-                                                            <td><strong>Round Off:</strong></td>
-                                                            <td>₹{data.roundOffAmount.toFixed(2)}</td>
-                                                        </tr>
-                                                    )}
-                                                    <tr className="border-top">
-                                                        <td className="h4">Grand Total:</td>
-                                                        <td className="h4 text-primary">₹{data.roundedGrandTotal}</td>
+                                                    ))}
+                                                    <tr className="table-light">
+                                                        <td colSpan="4" className="text-end fw-bold">Total Metres:</td>
+                                                        <td className="text-end fw-bold">{totalMeters.toFixed(2)}</td>
                                                     </tr>
                                                 </tbody>
                                             </table>
                                         </div>
-                                        
-                                        <div className="text-center mt-4 mb-2">
-                                            <p className="mb-0">Thank you for using our calculator!</p>
-                                            <p className="small text-muted mt-3">Created by: Aman Prasad</p>
-                                            <p className="small text-muted">Ramakrishna Mission Shilpamandira Computer Centre, Belur Math</p>
+
+                                        <div className="row">
+                                            <div className="col-md-6">
+                                                <div className="card p-3 mb-3">
+                                                    <h5>Payment Details</h5>
+                                                    <table className="table table-borderless table-sm">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td><strong>Material Cost:</strong></td>
+                                                                <td className="text-end">₹{(totalMeters * data.rate).toFixed(2)}</td>
+                                                            </tr>
+                                                            {data.discount > 0 && (
+                                                                <tr>
+                                                                    <td><strong>Discount:</strong></td>
+                                                                    <td className="text-end">₹{parseFloat(data.discount).toFixed(2)}</td>
+                                                                </tr>
+                                                            )}
+                                                            <tr>
+                                                                <td><strong>Delivery Charges:</strong></td>
+                                                                <td className="text-end">₹{parseFloat(data.deliveryCharges).toFixed(2)}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><strong>GST ({data.gstRate}%):</strong></td>
+                                                                <td className="text-end">₹{data.gstAmount.toFixed(2)}</td>
+                                                            </tr>
+                                                            {data.roundOffAmount !== 0 && (
+                                                                <tr>
+                                                                    <td><strong>Round Off:</strong></td>
+                                                                    <td className="text-end">₹{data.roundOffAmount.toFixed(2)}</td>
+                                                                </tr>
+                                                            )}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <div className="card bg-light p-3">
+                                                    <h4 className="text-center mb-3">Grand Total</h4>
+                                                    <h2 className="text-center text-primary">₹{data.roundedGrandTotal}</h2>
+                                                    <p className="text-center mb-0 small">
+                                                        {data.roundOff && <span className="text-success"><i className="bi bi-check-circle-fill me-1"></i>Rounded to nearest rupee</span>}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-5 pt-3 border-top">
+                                            <div className="row">
+                                                <div className="col-md-8">
+                                                    <p><strong>Terms & Conditions:</strong></p>
+                                                    <ol className="ps-3 small">
+                                                        <li>Payment due within 30 days</li>
+                                                        <li>Goods once sold will not be taken back</li>
+                                                        <li>Subject to local jurisdiction</li>
+                                                    </ol>
+                                                </div>
+                                                <div className="col-md-4 text-end">
+                                                    <p className="mb-5">For {data.firmName}</p>
+                                                    <p>Authorized Signatory</p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="modal-footer no-print">
                                     <button type="button" className="btn btn-secondary" onClick={onClose}>Close</button>
                                     <button type="button" className="btn print-button" onClick={handlePrint}>
-                                        <i className="bi bi-printer me-2"></i>Print Receipt
+                                        <i className="bi bi-printer me-2"></i>Print Invoice
                                     </button>
                                 </div>
                             </div>
@@ -310,302 +411,572 @@
                 </div>
             );
         };
-        
-        function GrandTotalCalculator() {
-            const [totalMeters, setTotalMeters] = useState('');
+
+        function EnhancedCalculator() {
+            // Company Information
+            const [useFirstFirm, setUseFirstFirm] = useState(true);
+            const [firmName, setFirmName] = useState("B.P.TRADING PVT LTD");
+            const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+            const [tokenNo, setTokenNo] = useState('');
+            const [customerName, setCustomerName] = useState('');
+
+            // Item Details
+            const [itemName, setItemName] = useState('');
+            const [finishCode, setFinishCode] = useState('');
             const [rate, setRate] = useState('');
+            const [isGstBill, setIsGstBill] = useState(true);
+
+            // Entry items (LR details)
+            const [entries, setEntries] = useState([
+                { lrNo: '', baleNo: '', color: '', meters: '' }
+            ]);
+
+            // Additional costs
             const [discount, setDiscount] = useState('');
             const [deliveryCharges, setDeliveryCharges] = useState('');
             const [gstRate, setGstRate] = useState('5');
             const [roundOff, setRoundOff] = useState(true);
-            const [showResults, setShowResults] = useState(false);
+
+            // UI states
+            const [showInvoice, setShowInvoice] = useState(false);
             const [loading, setLoading] = useState(true);
-            const [showReceipt, setShowReceipt] = useState(false);
-            
+            const [errors, setErrors] = useState({});
+
+            // Handle firm name change based on toggle
+            useEffect(() => {
+                setFirmName(useFirstFirm ? "B.P.TRADING PVT LTD" : "BHAGWATI TRADERS");
+            }, [useFirstFirm]);
+
+            // Add a new entry row
+            const addNewEntry = () => {
+                setEntries([...entries, { lrNo: '', baleNo: '', color: '', meters: '' }]);
+            };
+
+            // Remove an entry row
+            const removeEntry = (index) => {
+                if (entries.length > 1) {
+                    const newEntries = [...entries];
+                    newEntries.splice(index, 1);
+                    setEntries(newEntries);
+                }
+            };
+
+            // Update entry fields
+            const updateEntry = (index, field, value) => {
+                const newEntries = [...entries];
+                newEntries[index][field] = value;
+                setEntries(newEntries);
+            };
+
+            // Calculate total meters from all entries
+            const totalMeters = entries.reduce((total, entry) => {
+                const meters = parseFloat(entry.meters) || 0;
+                return total + meters;
+            }, 0);
+
             // Parse input values to numbers, defaulting to 0 if empty
-            const parsedTotalMeters = totalMeters === '' ? 0 : parseFloat(totalMeters);
             const parsedRate = rate === '' ? 0 : parseFloat(rate);
             const parsedDiscount = discount === '' ? 0 : parseFloat(discount);
             const parsedDeliveryCharges = deliveryCharges === '' ? 0 : parseFloat(deliveryCharges);
             const parsedGstRate = gstRate === '' ? 0 : parseFloat(gstRate);
-            
+
             // Calculate values
-            const subtotal = parsedTotalMeters * parsedRate;
+            const subtotal = totalMeters * parsedRate;
             const afterDiscount = Math.max(0, subtotal - parsedDiscount);
             const gstAmount = (afterDiscount + parsedDeliveryCharges) * (parsedGstRate / 100);
             const grandTotal = afterDiscount + parsedDeliveryCharges + gstAmount;
-            
+
             // Round off calculations
             const roundedGrandTotal = roundOff ? Math.round(grandTotal) : grandTotal;
             const roundOffAmount = roundedGrandTotal - grandTotal;
-            
+
             // Format currency
             const formatCurrency = (value) => {
-                return new Intl.NumberFormat('en-IN', { 
-                    style: 'currency', 
+                return new Intl.NumberFormat('en-IN', {
+                    style: 'currency',
                     currency: 'INR',
-                    maximumFractionDigits: 2 
+                    maximumFractionDigits: 2
                 }).format(value);
             };
-            
+
+            // Handle form submission with validation
+            const handleSubmit = (e) => {
+                e.preventDefault();
+
+                const newErrors = {};
+
+                // Validate required fields
+                if (!tokenNo) newErrors.tokenNo = "Token/Challan number is required";
+                if (!customerName) newErrors.customerName = "Customer name is required";
+                if (!itemName) newErrors.itemName = "Item name is required";
+                if (!finishCode) newErrors.finishCode = "Finish code is required";
+                if (!rate) newErrors.rate = "Rate is required";
+
+                // Validate entries
+                let hasEntryErrors = false;
+                entries.forEach((entry, index) => {
+                    if (!entry.lrNo || !entry.baleNo || !entry.color || !entry.meters) {
+                        hasEntryErrors = true;
+                    }
+                });
+
+                if (hasEntryErrors) {
+                    newErrors.entries = "All entry fields are required";
+                }
+
+                if (Object.keys(newErrors).length > 0) {
+                    setErrors(newErrors);
+                    return;
+                }
+
+                // Clear errors and show invoice
+                setErrors({});
+                setShowInvoice(true);
+            };
+
             // Handle reset
             const handleReset = () => {
-                setTotalMeters('');
+                setTokenNo('');
+                setCustomerName('');
+                setItemName('');
+                setFinishCode('');
                 setRate('');
+                setEntries([{ lrNo: '', baleNo: '', color: '', meters: '' }]);
                 setDiscount('');
                 setDeliveryCharges('');
                 setGstRate('5');
-                setShowResults(false);
+                setErrors({});
             };
-            
+
+            // Create invoice data
+            const invoiceData = {
+                firmName,
+                date,
+                tokenNo,
+                customerName,
+                itemName,
+                finishCode,
+                rate: parsedRate,
+                isGstBill,
+                entries,
+                discount: parsedDiscount,
+                deliveryCharges: parsedDeliveryCharges,
+                gstRate: parsedGstRate,
+                gstAmount,
+                grandTotal,
+                roundedGrandTotal,
+                roundOffAmount,
+                roundOff
+            };
+
             // Show loader on page load
             useEffect(() => {
                 const timer = setTimeout(() => {
                     setLoading(false);
                 }, 2000);
-                
+
                 return () => clearTimeout(timer);
             }, []);
-            
-            // Auto-calculate when inputs change
-            useEffect(() => {
-                if (totalMeters !== '' && rate !== '') {
-                    setShowResults(true);
-                } else {
-                    setShowResults(false);
-                }
-            }, [totalMeters, rate, discount, deliveryCharges, gstRate]);
-            
-            // Create receipt data
-            const receiptData = {
-                totalMeters: parsedTotalMeters,
-                rate: parsedRate,
-                discount: parsedDiscount,
-                deliveryCharges: parsedDeliveryCharges,
-                gstRate: parsedGstRate,
-                gstAmount: gstAmount,
-                grandTotal: grandTotal,
-                roundedGrandTotal: roundedGrandTotal,
-                roundOffAmount: roundOffAmount
-            };
-            
+
             return (
                 <>
                     <AnimatedBackground />
                     <Loader loading={loading} />
-                    
+
                     <div className="container py-5">
                         <div className="row justify-content-center">
-                            <div className="col-md-8">
+                            <div className="col-lg-10">
                                 <div className="calculation-card shadow border-0">
                                     <div className="card-header py-3 bg-primary text-white">
                                         <h2 className="mb-0 text-center">
-                                            <i className="bi bi-calculator me-2"></i>
-                                            Grand Total Calculator
+                                            <i className="bi bi-receipt me-2"></i>
+                                            Invoice Generator
                                         </h2>
                                     </div>
                                     <div className="card-body p-4">
-                                        <div className="row g-4">
-                                            <div className="col-md-6">
-                                                <label htmlFor="totalMeters" className="form-label fw-bold">
-                                                    <i className="bi bi-rulers me-2"></i>Total Meters
-                                                </label>
-                                                <input
-                                                    type="number"
-                                                    className="form-control form-control-lg custom-input"
-                                                    id="totalMeters"
-                                                    placeholder="Enter total meters"
-                                                    min="0"
-                                                    step="0.01"
-                                                    value={totalMeters}
-                                                    onChange={(e) => setTotalMeters(e.target.value)}
-                                                />
-                                            </div>
-                                            <div className="col-md-6">
-                                                <label htmlFor="rate" className="form-label fw-bold">
-                                                    <i className="bi bi-tag me-2"></i>Rate per Meter
-                                                </label>
-                                                <div className="input-group">
-                                                    <span className="input-group-text">₹</span>
+                                        <form onSubmit={handleSubmit}>
+                                            {/* Company Information */}
+                                            <div className="row mb-4">
+                                                <div className="col-12">
+                                                    <h4 className="mb-3">
+                                                        <i className="bi bi-building me-2"></i>
+                                                        Company Information
+                                                    </h4>
+                                                </div>
+
+                                                <div className="col-md-6 mb-3">
+                                                    <label className="form-label fw-bold">Firm Name</label>
+                                                    <div className="d-flex align-items-center">
+                                                        <div className="form-check form-switch">
+                                                            <input
+                                                                className="form-check-input"
+                                                                type="checkbox"
+                                                                id="firmSwitch"
+                                                                checked={useFirstFirm}
+                                                                onChange={(e) => setUseFirstFirm(e.target.checked)}
+                                                            />
+                                                            <label className="form-check-label" htmlFor="firmSwitch">
+                                                                {firmName}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="col-md-6 mb-3">
+                                                    <label htmlFor="date" className="form-label fw-bold">Date</label>
                                                     <input
-                                                        type="number"
-                                                        className="form-control form-control-lg custom-input"
-                                                        id="rate"
-                                                        placeholder="Enter rate"
-                                                        min="0"
-                                                        step="0.01"
-                                                        value={rate}
-                                                        onChange={(e) => setRate(e.target.value)}
+                                                        type="date"
+                                                        className="form-control custom-input"
+                                                        id="date"
+                                                        value={date}
+                                                        onChange={(e) => setDate(e.target.value)}
+                                                        required
                                                     />
                                                 </div>
-                                            </div>
-                                            <div className="col-md-6">
-                                                <label htmlFor="discount" className="form-label fw-bold">
-                                                    <i className="bi bi-currency-exchange me-2"></i>Discount
-                                                </label>
-                                                <div className="input-group">
-                                                    <span className="input-group-text">₹</span>
+
+                                                <div className="col-md-6 mb-3">
+                                                    <label htmlFor="tokenNo" className="form-label fw-bold">Token/Challan No.</label>
                                                     <input
-                                                        type="number"
-                                                        className="form-control form-control-lg custom-input"
-                                                        id="discount"
-                                                        placeholder="Enter discount amount"
-                                                        min="0"
-                                                        step="0.01"
-                                                        value={discount}
-                                                        onChange={(e) => setDiscount(e.target.value)}
+                                                        type="text"
+                                                        className={`form-control custom-input ${errors.tokenNo ? 'is-invalid' : ''}`}
+                                                        id="tokenNo"
+                                                        placeholder="Enter token or challan number"
+                                                        value={tokenNo}
+                                                        onChange={(e) => setTokenNo(e.target.value)}
                                                     />
+                                                    {errors.tokenNo && <div className="invalid-feedback">{errors.tokenNo}</div>}
                                                 </div>
-                                            </div>
-                                            <div className="col-md-6">
-                                                <label htmlFor="deliveryCharges" className="form-label fw-bold">
-                                                    <i className="bi bi-truck me-2"></i>Delivery Charges
-                                                </label>
-                                                <div className="input-group">
-                                                    <span className="input-group-text">₹</span>
+
+                                                <div className="col-md-6 mb-3">
+                                                    <label htmlFor="customerName" className="form-label fw-bold">Customer Name</label>
                                                     <input
-                                                        type="number"
-                                                        className="form-control form-control-lg custom-input"
-                                                        id="deliveryCharges"
-                                                        placeholder="Enter delivery charges"
-                                                        min="0"
-                                                        step="0.01"
-                                                        value={deliveryCharges}
-                                                        onChange={(e) => setDeliveryCharges(e.target.value)}
+                                                        type="text"
+                                                        className={`form-control custom-input ${errors.customerName ? 'is-invalid' : ''}`}
+                                                        id="customerName"
+                                                        placeholder="Enter customer name"
+                                                        value={customerName}
+                                                        onChange={(e) => setCustomerName(e.target.value)}
                                                     />
+                                                    {errors.customerName && <div className="invalid-feedback">{errors.customerName}</div>}
                                                 </div>
                                             </div>
-                                            <div className="col-md-6">
-                                                <label htmlFor="gstRate" className="form-label fw-bold">
-                                                    <i className="bi bi-percent me-2"></i>GST Rate
-                                                </label>
-                                                <div className="input-group">
+
+                                            {/* Item Details */}
+                                            <div className="row mb-4">
+                                                <div className="col-12">
+                                                    <h4 className="mb-3">
+                                                        <i className="bi bi-box-seam me-2"></i>
+                                                        Item Details
+                                                    </h4>
+                                                </div>
+
+                                                <div className="col-md-6 mb-3">
+                                                    <label htmlFor="itemName" className="form-label fw-bold">Item Name</label>
                                                     <input
-                                                        type="number"
-                                                        className="form-control form-control-lg custom-input"
-                                                        id="gstRate"
-                                                        placeholder="Enter GST rate"
-                                                        min="0"
-                                                        max="100"
-                                                        step="0.01"
-                                                        value={gstRate}
-                                                        onChange={(e) => setGstRate(e.target.value)}
+                                                        type="text"
+                                                        className={`form-control custom-input ${errors.itemName ? 'is-invalid' : ''}`}
+                                                        id="itemName"
+                                                        placeholder="Enter item name"
+                                                        value={itemName}
+                                                        onChange={(e) => setItemName(e.target.value)}
                                                     />
-                                                    <span className="input-group-text">%</span>
+                                                    {errors.itemName && <div className="invalid-feedback">{errors.itemName}</div>}
                                                 </div>
-                                            </div>
-                                            <div className="col-md-6">
-                                                <div className="form-check form-switch mt-4">
+
+                                                <div className="col-md-6 mb-3">
+                                                    <label htmlFor="finishCode" className="form-label fw-bold">Finish Code</label>
                                                     <input
-                                                        className="form-check-input"
-                                                        type="checkbox"
-                                                        id="roundOffSwitch"
-                                                        checked={roundOff}
-                                                        onChange={(e) => setRoundOff(e.target.checked)}
+                                                        type="text"
+                                                        className={`form-control custom-input ${errors.finishCode ? 'is-invalid' : ''}`}
+                                                        id="finishCode"
+                                                        placeholder="Enter finish code"
+                                                        value={finishCode}
+                                                        onChange={(e) => setFinishCode(e.target.value)}
                                                     />
-                                                    <label className="form-check-label fw-bold" htmlFor="roundOffSwitch">
-                                                        <i className="bi bi-arrows-angle-contract me-2"></i>Round Off to Nearest Rupee
-                                                    </label>
+                                                    {errors.finishCode && <div className="invalid-feedback">{errors.finishCode}</div>}
+                                                </div>
+
+                                                <div className="col-md-6 mb-3">
+                                                    <label htmlFor="rate" className="form-label fw-bold">Rate per Meter</label>
+                                                    <div className="input-group">
+                                                        <span className="input-group-text">₹</span>
+                                                        <input
+                                                            type="number"
+                                                            className={`form-control custom-input ${errors.rate ? 'is-invalid' : ''}`}
+                                                            id="rate"
+                                                            placeholder="Enter rate per meter"
+                                                            value={rate}
+                                                            onChange={(e) => setRate(e.target.value)}
+                                                            min="0"
+                                                            step="0.01"
+                                                        />
+                                                        {errors.rate && <div className="invalid-feedback">{errors.rate}</div>}
+                                                    </div>
+                                                </div>
+
+                                                <div className="col-md-6 mb-3">
+                                                    <label className="form-label fw-bold">Bill Type</label>
+                                                    <div className="form-check form-switch">
+                                                        <input
+                                                            className="form-check-input"
+                                                            type="checkbox"
+                                                            id="gstSwitch"
+                                                            checked={isGstBill}
+                                                            onChange={(e) => setIsGstBill(e.target.checked)}
+                                                        />
+                                                        <label className="form-check-label" htmlFor="gstSwitch">
+                                                            {isGstBill ? 'GST Bill (G)' : 'Regular Bill'}
+                                                        </label>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            
-                                            <div className="col-12 mt-4 d-grid gap-2 d-md-flex justify-content-md-center">
-                                                <button type="button" className="btn btn-outline-secondary btn-lg px-5" onClick={handleReset}>
-                                                    <i className="bi bi-arrow-counterclockwise me-2"></i>Reset
-                                                </button>
+
+                                            {/* LR Details */}
+                                            <div className="row mb-4">
+                                                <div className="col-12">
+                                                    <div className="d-flex justify-content-between align-items-center mb-3">
+                                                        <h4 className="mb-0">
+                                                            <i className="bi bi-truck me-2"></i>
+                                                            LR Details
+                                                        </h4>
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-sm btn-primary"
+                                                            onClick={addNewEntry}
+                                                        >
+                                                            <i className="bi bi-plus-circle me-1"></i> Add Entry
+                                                        </button>
+                                                    </div>
+
+                                                    {errors.entries && (
+                                                        <div className="alert alert-danger py-2">{errors.entries}</div>
+                                                    )}
+
+                                                    {entries.map((entry, index) => (
+                                                        <div className="row mb-3 entry-row" key={index}>
+                                                            <div className="col-md-3 mb-2">
+                                                                <input
+                                                                    type="text"
+                                                                    className="form-control custom-input"
+                                                                    placeholder="LR Number"
+                                                                    value={entry.lrNo}
+                                                                    onChange={(e) => updateEntry(index, 'lrNo', e.target.value)}
+                                                                />
+                                                            </div>
+                                                            <div className="col-md-2 mb-2">
+                                                                <input
+                                                                    type="text"
+                                                                    className="form-control custom-input"
+                                                                    placeholder="Bale Number"
+                                                                    value={entry.baleNo}
+                                                                    onChange={(e) => updateEntry(index, 'baleNo', e.target.value)}
+                                                                />
+                                                            </div>
+                                                            <div className="col-md-3 mb-2">
+                                                                <input
+                                                                    type="text"
+                                                                    className="form-control custom-input"
+                                                                    placeholder="Color"
+                                                                    value={entry.color}
+                                                                    onChange={(e) => updateEntry(index, 'color', e.target.value)}
+                                                                />
+                                                            </div>
+                                                            <div className="col-md-3 mb-2">
+                                                                <input
+                                                                    type="number"
+                                                                    className="form-control custom-input"
+                                                                    placeholder="Metres"
+                                                                    value={entry.meters}
+                                                                    onChange={(e) => updateEntry(index, 'meters', e.target.value)}
+                                                                    min="0"
+                                                                    step="0.01"
+                                                                />
+                                                            </div>
+                                                            <div className="col-md-1 mb-2 d-flex align-items-center justify-content-center">
+                                                                {entries.length > 1 && (
+                                                                    <button
+                                                                        type="button"
+                                                                        className="btn btn-link p-0 delete-btn"
+                                                                        onClick={() => removeEntry(index)}
+                                                                    >
+                                                                        <i className="bi bi-trash fs-5"></i>
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    ))}
+
+                                                    <div className="row mt-2">
+                                                        <div className="col-12">
+                                                            <div className="alert alert-info py-2">
+                                                                <strong>Total Metres: {totalMeters.toFixed(2)}</strong>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
-                                        
-                                        {showResults && (
-                                            <div className="result-section mt-5 p-4 border animate__animated animate__fadeIn">
-                                                <h3 className="text-center mb-4 text-primary">Calculation Results</h3>
-                                                <div className="table-responsive">
-                                                    <table className="table table-borderless table-hover">
-                                                        <tbody>
-                                                            <tr>
-                                                                <td className="fw-bold">Material Cost:</td>
-                                                                <td className="text-end">{formatCurrency(subtotal)}</td>
-                                                                <td className="small text-muted">({parsedTotalMeters} meters × ₹{parsedRate} per meter)</td>
-                                                            </tr>
-                                                            {parsedDiscount > 0 && (
-                                                                <tr>
-                                                                    <td className="fw-bold">Discount:</td>
-                                                                    <td className="text-end text-danger">-{formatCurrency(parsedDiscount)}</td>
-                                                                    <td></td>
-                                                                </tr>
-                                                            )}
-                                                            {parsedDiscount > 0 && (
-                                                                <tr>
-                                                                    <td className="fw-bold">After Discount:</td>
-                                                                    <td className="text-end">{formatCurrency(afterDiscount)}</td>
-                                                                    <td></td>
-                                                                </tr>
-                                                            )}
-                                                            <tr>
-                                                                <td className="fw-bold">Delivery Charges:</td>
-                                                                <td className="text-end">{formatCurrency(parsedDeliveryCharges)}</td>
-                                                                <td></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td className="fw-bold">GST ({parsedGstRate}%):</td>
-                                                                <td className="text-end">{formatCurrency(gstAmount)}</td>
-                                                                <td></td>
-                                                            </tr>
-                                                            {roundOff && roundOffAmount !== 0 && (
-                                                                <tr>
-                                                                    <td className="fw-bold">Round Off:</td>
-                                                                    <td className="text-end">
-                                                                        {roundOffAmount > 0 ? '+' : ''}{formatCurrency(roundOffAmount)}
-                                                                    </td>
-                                                                    <td></td>
-                                                                </tr>
-                                                            )}
-                                                            <tr className="border-top">
-                                                                <td className="fw-bold fs-5">Grand Total:</td>
-                                                                <td className="text-end fw-bold fs-5 text-primary">
-                                                                    {formatCurrency(roundOff ? roundedGrandTotal : grandTotal)}
-                                                                </td>
-                                                                <td>
-                                                                    {roundOff && (
-                                                                        <span className="round-off">
-                                                                            <i className="bi bi-check-circle-fill me-1"></i>
-                                                                            Rounded to nearest rupee
-                                                                        </span>
-                                                                    )}
-                                                                </td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
+
+                                            {/* Additional Charges */}
+                                            <div className="row mb-4">
+                                                <div className="col-12">
+                                                    <h4 className="mb-3">
+                                                        <i className="bi bi-cash-stack me-2"></i>
+                                                        Additional Charges
+                                                    </h4>
                                                 </div>
-                                                <div className="alert alert-info mt-3">
-                                                    <i className="bi bi-info-circle-fill me-2"></i>
-                                                    The grand total includes material cost, {parsedDiscount > 0 ? 'less discount, ' : ''}delivery charges, {parsedGstRate}% GST
-                                                    {roundOff ? ', and is rounded to the nearest rupee' : ''}.
+
+                                                <div className="col-md-4 mb-3">
+                                                    <label htmlFor="discount" className="form-label fw-bold">Discount</label>
+                                                    <div className="input-group">
+                                                        <span className="input-group-text">₹</span>
+                                                        <input
+                                                            type="number"
+                                                            className="form-control custom-input"
+                                                            id="discount"
+                                                            placeholder="Enter discount amount"
+                                                            value={discount}
+                                                            onChange={(e) => setDiscount(e.target.value)}
+                                                            min="0"
+                                                            step="0.01"
+                                                        />
+                                                    </div>
                                                 </div>
-                                                <div className="d-grid">
-                                                    <button 
-                                                        className="btn print-button btn-lg mt-3" 
-                                                        onClick={() => setShowReceipt(true)}
-                                                        disabled={!showResults || (parsedTotalMeters <= 0 || parsedRate <= 0)}
+
+                                                <div className="col-md-4 mb-3">
+                                                    <label htmlFor="deliveryCharges" className="form-label fw-bold">Delivery Charges</label>
+                                                    <div className="input-group">
+                                                        <span className="input-group-text">₹</span>
+                                                        <input
+                                                            type="number"
+                                                            className="form-control custom-input"
+                                                            id="deliveryCharges"
+                                                            placeholder="Enter delivery charges"
+                                                            value={deliveryCharges}
+                                                            onChange={(e) => setDeliveryCharges(e.target.value)}
+                                                            min="0"
+                                                            step="0.01"
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <div className="col-md-4 mb-3">
+                                                    <label htmlFor="gstRate" className="form-label fw-bold">GST Rate</label>
+                                                    <div className="input-group">
+                                                        <input
+                                                            type="number"
+                                                            className="form-control custom-input"
+                                                            id="gstRate"
+                                                            placeholder="Enter GST rate"
+                                                            value={gstRate}
+                                                            onChange={(e) => setGstRate(e.target.value)}
+                                                            min="0"
+                                                            max="100"
+                                                            step="0.01"
+                                                        />
+                                                        <span className="input-group-text">%</span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="col-md-12 mb-3">
+                                                    <div className="form-check form-switch">
+                                                        <input
+                                                            className="form-check-input"
+                                                            type="checkbox"
+                                                            id="roundOffSwitch"
+                                                            checked={roundOff}
+                                                            onChange={(e) => setRoundOff(e.target.checked)}
+                                                        />
+                                                        <label className="form-check-label fw-bold" htmlFor="roundOffSwitch">
+                                                            <i className="bi bi-arrows-angle-contract me-2"></i>Round Off to Nearest Rupee
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Calculation Summary */}
+                                            {totalMeters > 0 && rate && (
+                                                <div className="row mb-4">
+                                                    <div className="col-12">
+                                                        <div className="card bg-light p-3">
+                                                            <h4 className="mb-3 text-center">Calculation Summary</h4>
+                                                            <div className="row">
+                                                                <div className="col-md-6">
+                                                                    <table className="table table-borderless">
+                                                                        <tbody>
+                                                                            <tr>
+                                                                                <td><strong>Material Cost:</strong></td>
+                                                                                <td className="text-end">{formatCurrency(subtotal)}</td>
+                                                                            </tr>
+                                                                            {parsedDiscount > 0 && (
+                                                                                <tr>
+                                                                                    <td><strong>Discount:</strong></td>
+                                                                                    <td className="text-end text-danger">-{formatCurrency(parsedDiscount)}</td>
+                                                                                </tr>
+                                                                            )}
+                                                                            <tr>
+                                                                                <td><strong>Delivery Charges:</strong></td>
+                                                                                <td className="text-end">{formatCurrency(parsedDeliveryCharges)}</td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                                <div className="col-md-6">
+                                                                    <table className="table table-borderless">
+                                                                        <tbody>
+                                                                            <tr>
+                                                                                <td><strong>GST ({parsedGstRate}%):</strong></td>
+                                                                                <td className="text-end">{formatCurrency(gstAmount)}</td>
+                                                                            </tr>
+                                                                            {roundOff && roundOffAmount !== 0 && (
+                                                                                <tr>
+                                                                                    <td><strong>Round Off:</strong></td>
+                                                                                    <td className="text-end">
+                                                                                        {roundOffAmount > 0 ? '+' : ''}{formatCurrency(roundOffAmount)}
+                                                                                    </td>
+                                                                                </tr>
+                                                                            )}
+                                                                            <tr className="border-top">
+                                                                                <td className="fw-bold fs-5">Grand Total:</td>
+                                                                                <td className="text-end fw-bold fs-5 text-primary">
+                                                                                    {formatCurrency(roundedGrandTotal)}
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Form Actions */}
+                                            <div className="row mt-4">
+                                                <div className="col-12 d-grid gap-2 d-md-flex justify-content-md-center">
+                                                    <button type="button" className="btn btn-outline-secondary btn-lg px-5" onClick={handleReset}>
+                                                        <i className="bi bi-arrow-counterclockwise me-2"></i>Reset
+                                                    </button>
+                                                    <button
+                                                        type="submit"
+                                                        className="btn print-button btn-lg px-5"
+                                                        disabled={!(totalMeters > 0 && rate && tokenNo && customerName && itemName && finishCode)}
                                                     >
-                                                        <i className="bi bi-receipt me-2"></i>
-                                                        Generate Receipt
+                                                        <i className="bi bi-receipt me-2"></i>Generate Invoice
                                                     </button>
                                                 </div>
                                             </div>
-                                        )}
+                                        </form>
                                     </div>
                                     <div className="card-footer bg-white text-center py-3 text-muted">
-                                        <small>© 2025 Grand Total Calculator | Made with <i className="bi bi-heart-fill text-danger"></i> by Aman Prasad</small><br/>
-                                        <small>Ramakrishna Mission Shilpamandira Computer Centre, Belur Math</small>
+                                        <small>© 2025 Invoice Generator | Made with <i className="bi bi-heart-fill text-danger"></i> by {firmName}</small>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                    {showReceipt && (
-                        <Receipt data={receiptData} onClose={() => setShowReceipt(false)} />
+
+                    {showInvoice && (
+                        <Invoice data={invoiceData} onClose={() => setShowInvoice(false)} />
                     )}
                 </>
             );
@@ -613,7 +984,8 @@
 
         // Render the app
         const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<GrandTotalCalculator />);
+        root.render(<EnhancedCalculator />);
     </script>
 </body>
+
 </html>
