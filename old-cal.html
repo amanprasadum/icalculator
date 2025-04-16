@@ -141,11 +141,6 @@
             background: #0b5ed7;
         }
         
-        .round-off {
-            font-size: 0.9rem;
-            color: #28a745;
-        }
-        
         @media print {
             body * {
                 visibility: hidden;
@@ -277,15 +272,9 @@
                                                         <td><strong>GST ({data.gstRate}%):</strong></td>
                                                         <td>₹{data.gstAmount.toFixed(2)}</td>
                                                     </tr>
-                                                    {data.roundOffAmount !== 0 && (
-                                                        <tr>
-                                                            <td><strong>Round Off:</strong></td>
-                                                            <td>₹{data.roundOffAmount.toFixed(2)}</td>
-                                                        </tr>
-                                                    )}
                                                     <tr className="border-top">
                                                         <td className="h4">Grand Total:</td>
-                                                        <td className="h4 text-primary">₹{data.roundedGrandTotal}</td>
+                                                        <td className="h4 text-primary">₹{data.grandTotal.toFixed(2)}</td>
                                                     </tr>
                                                 </tbody>
                                             </table>
@@ -317,7 +306,6 @@
             const [discount, setDiscount] = useState('');
             const [deliveryCharges, setDeliveryCharges] = useState('');
             const [gstRate, setGstRate] = useState('5');
-            const [roundOff, setRoundOff] = useState(true);
             const [showResults, setShowResults] = useState(false);
             const [loading, setLoading] = useState(true);
             const [showReceipt, setShowReceipt] = useState(false);
@@ -334,10 +322,6 @@
             const afterDiscount = Math.max(0, subtotal - parsedDiscount);
             const gstAmount = (afterDiscount + parsedDeliveryCharges) * (parsedGstRate / 100);
             const grandTotal = afterDiscount + parsedDeliveryCharges + gstAmount;
-            
-            // Round off calculations
-            const roundedGrandTotal = roundOff ? Math.round(grandTotal) : grandTotal;
-            const roundOffAmount = roundedGrandTotal - grandTotal;
             
             // Format currency
             const formatCurrency = (value) => {
@@ -384,9 +368,7 @@
                 deliveryCharges: parsedDeliveryCharges,
                 gstRate: parsedGstRate,
                 gstAmount: gstAmount,
-                grandTotal: grandTotal,
-                roundedGrandTotal: roundedGrandTotal,
-                roundOffAmount: roundOffAmount
+                grandTotal: grandTotal
             };
             
             return (
@@ -494,20 +476,6 @@
                                                     <span className="input-group-text">%</span>
                                                 </div>
                                             </div>
-                                            <div className="col-md-6">
-                                                <div className="form-check form-switch mt-4">
-                                                    <input
-                                                        className="form-check-input"
-                                                        type="checkbox"
-                                                        id="roundOffSwitch"
-                                                        checked={roundOff}
-                                                        onChange={(e) => setRoundOff(e.target.checked)}
-                                                    />
-                                                    <label className="form-check-label fw-bold" htmlFor="roundOffSwitch">
-                                                        <i className="bi bi-arrows-angle-contract me-2"></i>Round Off to Nearest Rupee
-                                                    </label>
-                                                </div>
-                                            </div>
                                             
                                             <div className="col-12 mt-4 d-grid gap-2 d-md-flex justify-content-md-center">
                                                 <button type="button" className="btn btn-outline-secondary btn-lg px-5" onClick={handleReset}>
@@ -551,36 +519,17 @@
                                                                 <td className="text-end">{formatCurrency(gstAmount)}</td>
                                                                 <td></td>
                                                             </tr>
-                                                            {roundOff && roundOffAmount !== 0 && (
-                                                                <tr>
-                                                                    <td className="fw-bold">Round Off:</td>
-                                                                    <td className="text-end">
-                                                                        {roundOffAmount > 0 ? '+' : ''}{formatCurrency(roundOffAmount)}
-                                                                    </td>
-                                                                    <td></td>
-                                                                </tr>
-                                                            )}
                                                             <tr className="border-top">
                                                                 <td className="fw-bold fs-5">Grand Total:</td>
-                                                                <td className="text-end fw-bold fs-5 text-primary">
-                                                                    {formatCurrency(roundOff ? roundedGrandTotal : grandTotal)}
-                                                                </td>
-                                                                <td>
-                                                                    {roundOff && (
-                                                                        <span className="round-off">
-                                                                            <i className="bi bi-check-circle-fill me-1"></i>
-                                                                            Rounded to nearest rupee
-                                                                        </span>
-                                                                    )}
-                                                                </td>
+                                                                <td className="text-end fw-bold fs-5 text-primary">{formatCurrency(grandTotal)}</td>
+                                                                <td></td>
                                                             </tr>
                                                         </tbody>
                                                     </table>
                                                 </div>
                                                 <div className="alert alert-info mt-3">
                                                     <i className="bi bi-info-circle-fill me-2"></i>
-                                                    The grand total includes material cost, {parsedDiscount > 0 ? 'less discount, ' : ''}delivery charges, {parsedGstRate}% GST
-                                                    {roundOff ? ', and is rounded to the nearest rupee' : ''}.
+                                                    The grand total includes material cost, {parsedDiscount > 0 ? 'less discount, ' : ''}delivery charges, and {parsedGstRate}% GST.
                                                 </div>
                                                 <div className="d-grid">
                                                     <button 
