@@ -20,26 +20,8 @@
     <style>
         body {
             background-color: #f8f9fa;
+            position: relative;
             overflow-x: hidden;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .calculation-card {
-            transition: all 0.3s ease;
-            background-color: #ffffff;
-            border-radius: 16px;
-            overflow: hidden;
-        }
-
-        .calculation-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        .result-section {
-            background-color: #f8f9fa;
-            border-radius: 0.5rem;
-            transition: all 0.3s ease;
         }
 
         .animated-background {
@@ -49,13 +31,46 @@
             width: 100%;
             height: 100%;
             z-index: -1;
+            overflow: hidden;
         }
 
         .circle {
             position: absolute;
             border-radius: 50%;
-            opacity: 0.2;
+            opacity: 0.05;
             filter: blur(60px);
+        }
+
+        .calculation-card {
+            background-color: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .custom-input {
+            border-radius: 6px;
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            transition: all 0.2s;
+        }
+
+        .custom-input:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+        .result-section {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .delete-btn {
+            color: #dc3545;
+        }
+
+        .delete-btn:hover {
+            color: #b02a37;
         }
 
         .loader-container {
@@ -64,118 +79,52 @@
             left: 0;
             width: 100%;
             height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #f8f9fa;
-            z-index: 9999;
-            transition: opacity 0.5s ease;
+            z-index: 1000;
+            transition: opacity 0.5s;
         }
 
         .loader {
-            width: 100px;
-            height: 100px;
+            width: 48px;
+            height: 48px;
+            border: 5px solid #0d6efd;
+            border-bottom-color: transparent;
             border-radius: 50%;
             display: inline-block;
-            position: relative;
-            background: linear-gradient(0deg, rgba(13, 110, 253, 0.1) 33%, rgba(13, 110, 253, 1) 100%);
             box-sizing: border-box;
             animation: rotation 1s linear infinite;
         }
 
-        .loader::after {
-            content: '';
-            box-sizing: border-box;
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            background: #f8f9fa;
-        }
-
         @keyframes rotation {
             0% {
-                transform: rotate(0deg)
+                transform: rotate(0deg);
             }
 
             100% {
-                transform: rotate(360deg)
+                transform: rotate(360deg);
             }
         }
 
-        .custom-input {
-            background-color: #ffffff;
-            border: 1px solid #ced4da;
-            border-radius: 8px;
-            padding: 12px;
-            transition: all 0.3s;
-        }
-
-        .custom-input:focus {
-            box-shadow: 0 5px 15px rgba(13, 110, 253, 0.1);
-            border-color: #0d6efd;
-        }
-
-        .receipt {
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            max-width: 800px;
+        .a5-receipt {
+            width: 100%;
+            max-width: 700px;
             margin: 0 auto;
+            padding: 20px;
         }
 
-        .receipt-header {
+        .a5-receipt-header {
             text-align: center;
-            border-bottom: 2px dashed #ddd;
-            padding-bottom: 15px;
             margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #dee2e6;
         }
 
         .print-button {
-            background: #0d6efd;
-            border: none;
+            background-color: #0d6efd;
             color: white;
-            border-radius: 8px;
-            transition: all 0.3s;
-        }
-
-        .print-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(13, 110, 253, 0.2);
-            background: #0b5ed7;
-        }
-
-        .round-off {
-            font-size: 0.9rem;
-            color: #28a745;
-        }
-
-        .entry-row {
-            animation: fadeIn 0.5s;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .delete-btn {
-            transition: all 0.2s;
-        }
-
-        .delete-btn:hover {
-            color: #dc3545;
-            transform: scale(1.2);
         }
 
         @media print {
@@ -183,22 +132,26 @@
                 visibility: hidden;
             }
 
-            .receipt,
-            .receipt * {
+            .modal-content * {
                 visibility: visible;
             }
 
-            .receipt {
+            .no-print * {
+                visibility: hidden;
+            }
+
+            .a5-receipt {
                 position: absolute;
                 left: 0;
                 top: 0;
                 width: 100%;
-                box-shadow: none;
+                padding: 15px;
             }
+        }
 
-            .no-print {
-                display: none;
-            }
+        .round-off {
+            color: #198754;
+            font-size: 0.875rem;
         }
     </style>
 </head>
@@ -261,8 +214,8 @@
             );
         };
 
-        // Invoice Component
-        const Invoice = ({ data, onClose }) => {
+        // A5 Invoice Component
+        const A5Invoice = ({ data, onClose }) => {
             const invoiceRef = useRef(null);
 
             const handlePrint = () => {
@@ -275,44 +228,42 @@
             return (
                 <div className="modal-backdrop show">
                     <div className="modal d-block" tabIndex="-1">
-                        <div className="modal-dialog modal-xl">
+                        <div className="modal-dialog modal-lg">
                             <div className="modal-content">
                                 <div className="modal-header">
-                                    <h5 className="modal-title">Print Invoice</h5>
                                     <button type="button" className="btn-close no-print" onClick={onClose}></button>
                                 </div>
                                 <div className="modal-body">
-                                    <div ref={invoiceRef} className="receipt">
-                                        <div className="receipt-header">
+                                    <div ref={invoiceRef} className="a5-receipt">
+                                        <div className="a5-receipt-header">
                                             <h2 className="mb-1">{data.firmName}</h2>
-                                            <p className="mb-0">TAX INVOICE</p>
+                                            <p className="mb-0"><strong>TAX INVOICE</strong></p>
                                         </div>
 
-                                        <div className="row mb-4">
-                                            <div className="col-md-6">
-                                                <p><strong>Invoice Date:</strong> {data.date}</p>
-                                                <p><strong>Token/Challan No:</strong> {data.tokenNo}</p>
+                                        <div className="row mb-2">
+                                            <div className="col-6">
+                                                <p><strong>Date:</strong> {data.date}</p>
+                                                <p><strong>Challan No:</strong> {data.challNo}</p>
+                                                <p><strong>Token No:</strong> {data.tokenNo}</p>
                                             </div>
-                                            <div className="col-md-6 text-md-end">
+                                            <div className="col-6 text-left">
                                                 <p><strong>Customer:</strong> {data.customerName}</p>
-                                                <p><strong>GST Bill:</strong> {data.isGstBill ? 'Yes' : 'No'}</p>
                                             </div>
                                         </div>
 
-                                        <div className="row mb-3">
+                                        <div className="row mb-2">
                                             <div className="col-12">
-                                                <p><strong>Item:</strong> {data.itemName}</p>
-                                                <p><strong>Finish Code:</strong> {data.finishCode}</p>
-                                                <p><strong>Rate:</strong> ₹{data.rate} per meter</p>
+                                                <p><strong>Item:</strong> {data.itemName} | <strong>Rate:</strong> ₹{data.rate}/meter</p>
                                             </div>
                                         </div>
 
-                                        <div className="table-responsive mb-4">
-                                            <table className="table table-bordered">
+                                        <div className="table-responsive mb-2">
+                                            <table className="table table-bordered table-sm">
                                                 <thead className="table-light">
                                                     <tr>
                                                         <th>#</th>
                                                         <th>LR Number</th>
+                                                        <th>Finish Code</th>
                                                         <th>Bale Number</th>
                                                         <th>Color</th>
                                                         <th>Metres</th>
@@ -323,13 +274,14 @@
                                                         <tr key={index}>
                                                             <td>{index + 1}</td>
                                                             <td>{entry.lrNo}</td>
+                                                            <td>{entry.finishCode}</td>
                                                             <td>{entry.baleNo}</td>
                                                             <td>{entry.color}</td>
                                                             <td className="text-end">{parseFloat(entry.meters).toFixed(2)}</td>
                                                         </tr>
                                                     ))}
                                                     <tr className="table-light">
-                                                        <td colSpan="4" className="text-end fw-bold">Total Metres:</td>
+                                                        <td colSpan="5" className="text-end fw-bold">Total Metres:</td>
                                                         <td className="text-end fw-bold">{totalMeters.toFixed(2)}</td>
                                                     </tr>
                                                 </tbody>
@@ -337,10 +289,10 @@
                                         </div>
 
                                         <div className="row">
-                                            <div className="col-md-6">
-                                                <div className="card p-3 mb-3">
+                                            <div className="col-6">
+                                                <div className="p-2 mb-2 border rounded">
                                                     <h5>Payment Details</h5>
-                                                    <table className="table table-borderless table-sm">
+                                                    <table className="table table-borderless table-sm mb-0">
                                                         <tbody>
                                                             <tr>
                                                                 <td><strong>Material Cost:</strong></td>
@@ -370,30 +322,13 @@
                                                     </table>
                                                 </div>
                                             </div>
-                                            <div className="col-md-6">
-                                                <div className="card bg-light p-3">
-                                                    <h4 className="text-center mb-3">Grand Total</h4>
+                                            <div className="col-6">
+                                                <div className="p-2 bg-light border rounded">
+                                                    <h4 className="text-center mb-2">Grand Total</h4>
                                                     <h2 className="text-center text-primary">₹{data.roundedGrandTotal}</h2>
                                                     <p className="text-center mb-0 small">
-                                                        {data.roundOff && <span className="text-success"><i className="bi bi-check-circle-fill me-1"></i>Rounded to nearest rupee</span>}
+                                                        {data.roundOff && <span className="text-success"><i className="bi bi-check-circle-fill me-1"></i>Rounded</span>}
                                                     </p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="mt-5 pt-3 border-top">
-                                            <div className="row">
-                                                <div className="col-md-8">
-                                                    <p><strong>Terms & Conditions:</strong></p>
-                                                    <ol className="ps-3 small">
-                                                        <li>Payment due within 30 days</li>
-                                                        <li>Goods once sold will not be taken back</li>
-                                                        <li>Subject to local jurisdiction</li>
-                                                    </ol>
-                                                </div>
-                                                <div className="col-md-4 text-end">
-                                                    <p className="mb-5">For {data.firmName}</p>
-                                                    <p>Authorized Signatory</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -418,22 +353,24 @@
             const [firmName, setFirmName] = useState("B.P.TRADING PVT LTD");
             const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
             const [tokenNo, setTokenNo] = useState('');
+            const [challNo, setchallNo] = useState('');
             const [customerName, setCustomerName] = useState('');
 
             // Item Details
             const [itemName, setItemName] = useState('');
-            const [finishCode, setFinishCode] = useState('');
             const [rate, setRate] = useState('');
             const [isGstBill, setIsGstBill] = useState(true);
 
             // Entry items (LR details)
             const [entries, setEntries] = useState([
-                { lrNo: '', baleNo: '', color: '', meters: '' }
+                { lrNo: '', finishCode: '', baleNo: '', color: '', meters: '' }
             ]);
 
             // Additional costs
             const [discount, setDiscount] = useState('');
+            const [autoDiscount, setAutoDiscount] = useState(false);
             const [deliveryCharges, setDeliveryCharges] = useState('');
+            const [autoDelivery, setAutoDelivery] = useState(false);
             const [gstRate, setGstRate] = useState('5');
             const [roundOff, setRoundOff] = useState(true);
 
@@ -447,9 +384,22 @@
                 setFirmName(useFirstFirm ? "B.P.TRADING PVT LTD" : "BHAGWATI TRADERS");
             }, [useFirstFirm]);
 
+            // Calculate and set automatic discount and delivery charges
+            useEffect(() => {
+                if (autoDiscount) {
+                    // 75 per LR row
+                    setDiscount((entries.length * 75).toString());
+                }
+
+                if (autoDelivery) {
+                    // 60 per LR row
+                    setDeliveryCharges((entries.length * 60).toString());
+                }
+            }, [entries.length, autoDiscount, autoDelivery]);
+
             // Add a new entry row
             const addNewEntry = () => {
-                setEntries([...entries, { lrNo: '', baleNo: '', color: '', meters: '' }]);
+                setEntries([...entries, { lrNo: '', finishCode: '', baleNo: '', color: '', meters: '' }]);
             };
 
             // Remove an entry row
@@ -483,7 +433,7 @@
             // Calculate values
             const subtotal = totalMeters * parsedRate;
             const afterDiscount = Math.max(0, subtotal - parsedDiscount);
-            const gstAmount = (afterDiscount + parsedDeliveryCharges) * (parsedGstRate / 100);
+            const gstAmount = isGstBill ? (afterDiscount + parsedDeliveryCharges) * (parsedGstRate / 100) : 0;
             const grandTotal = afterDiscount + parsedDeliveryCharges + gstAmount;
 
             // Round off calculations
@@ -499,6 +449,28 @@
                 }).format(value);
             };
 
+            // Toggle auto discount and update discount value accordingly
+            const handleAutoDiscountToggle = (e) => {
+                const isChecked = e.target.checked;
+                setAutoDiscount(isChecked);
+
+                if (isChecked) {
+                    // Calculate: 75 per LR row
+                    setDiscount((entries.length * 75).toString());
+                }
+            };
+
+            // Toggle auto delivery and update delivery charges accordingly
+            const handleAutoDeliveryToggle = (e) => {
+                const isChecked = e.target.checked;
+                setAutoDelivery(isChecked);
+
+                if (isChecked) {
+                    // Calculate: 60 per LR row
+                    setDeliveryCharges((entries.length * 60).toString());
+                }
+            };
+
             // Handle form submission with validation
             const handleSubmit = (e) => {
                 e.preventDefault();
@@ -506,16 +478,16 @@
                 const newErrors = {};
 
                 // Validate required fields
-                if (!tokenNo) newErrors.tokenNo = "Token/Challan number is required";
+                if (!challNo) newErrors.challNo = "Challan number is required";
+                if (!tokenNo) newErrors.tokenNo = "Token number is required";
                 if (!customerName) newErrors.customerName = "Customer name is required";
                 if (!itemName) newErrors.itemName = "Item name is required";
-                if (!finishCode) newErrors.finishCode = "Finish code is required";
                 if (!rate) newErrors.rate = "Rate is required";
 
                 // Validate entries
                 let hasEntryErrors = false;
                 entries.forEach((entry, index) => {
-                    if (!entry.lrNo || !entry.baleNo || !entry.color || !entry.meters) {
+                    if (!entry.lrNo || !entry.finishCode || !entry.baleNo || !entry.color || !entry.meters) {
                         hasEntryErrors = true;
                     }
                 });
@@ -536,16 +508,18 @@
 
             // Handle reset
             const handleReset = () => {
+                setchallNo('');
                 setTokenNo('');
                 setCustomerName('');
                 setItemName('');
-                setFinishCode('');
                 setRate('');
-                setEntries([{ lrNo: '', baleNo: '', color: '', meters: '' }]);
+                setEntries([{ lrNo: '', finishCode: '', baleNo: '', color: '', meters: '' }]);
                 setDiscount('');
                 setDeliveryCharges('');
                 setGstRate('5');
                 setErrors({});
+                setAutoDiscount(false);
+                setAutoDelivery(false);
             };
 
             // Create invoice data
@@ -553,9 +527,9 @@
                 firmName,
                 date,
                 tokenNo,
+                challNo,
                 customerName,
                 itemName,
-                finishCode,
                 rate: parsedRate,
                 isGstBill,
                 entries,
@@ -635,12 +609,24 @@
                                                 </div>
 
                                                 <div className="col-md-6 mb-3">
-                                                    <label htmlFor="tokenNo" className="form-label fw-bold">Token/Challan No.</label>
+                                                    <label htmlFor="challNo" className="form-label fw-bold">Challan No.</label>
+                                                    <input
+                                                        type="text"
+                                                        className={`form-control custom-input ${errors.challNo ? 'is-invalid' : ''}`}
+                                                        id="challNo"
+                                                        placeholder="Enter challan number"
+                                                        value={challNo}
+                                                        onChange={(e) => setchallNo(e.target.value)}
+                                                    />
+                                                    {errors.challNo && <div className="invalid-feedback">{errors.challNo}</div>}
+                                                </div>
+                                                <div className="col-md-6 mb-3">
+                                                    <label htmlFor="tokenNo" className="form-label fw-bold">Token No.</label>
                                                     <input
                                                         type="text"
                                                         className={`form-control custom-input ${errors.tokenNo ? 'is-invalid' : ''}`}
                                                         id="tokenNo"
-                                                        placeholder="Enter token or challan number"
+                                                        placeholder="Enter token number"
                                                         value={tokenNo}
                                                         onChange={(e) => setTokenNo(e.target.value)}
                                                     />
@@ -681,19 +667,6 @@
                                                         onChange={(e) => setItemName(e.target.value)}
                                                     />
                                                     {errors.itemName && <div className="invalid-feedback">{errors.itemName}</div>}
-                                                </div>
-
-                                                <div className="col-md-6 mb-3">
-                                                    <label htmlFor="finishCode" className="form-label fw-bold">Finish Code</label>
-                                                    <input
-                                                        type="text"
-                                                        className={`form-control custom-input ${errors.finishCode ? 'is-invalid' : ''}`}
-                                                        id="finishCode"
-                                                        placeholder="Enter finish code"
-                                                        value={finishCode}
-                                                        onChange={(e) => setFinishCode(e.target.value)}
-                                                    />
-                                                    {errors.finishCode && <div className="invalid-feedback">{errors.finishCode}</div>}
                                                 </div>
 
                                                 <div className="col-md-6 mb-3">
@@ -748,84 +721,110 @@
                                                         </button>
                                                     </div>
 
+
                                                     {errors.entries && (
-                                                        <div className="alert alert-danger py-2">{errors.entries}</div>
+                                                        <div className="alert alert-danger py-2 mb-3">
+                                                            {errors.entries}
+                                                        </div>
                                                     )}
 
-                                                    {entries.map((entry, index) => (
-                                                        <div className="row mb-3 entry-row" key={index}>
-                                                            <div className="col-md-3 mb-2">
-                                                                <input
-                                                                    type="text"
-                                                                    className="form-control custom-input"
-                                                                    placeholder="LR Number"
-                                                                    value={entry.lrNo}
-                                                                    onChange={(e) => updateEntry(index, 'lrNo', e.target.value)}
-                                                                />
-                                                            </div>
-                                                            <div className="col-md-2 mb-2">
-                                                                <input
-                                                                    type="text"
-                                                                    className="form-control custom-input"
-                                                                    placeholder="Bale Number"
-                                                                    value={entry.baleNo}
-                                                                    onChange={(e) => updateEntry(index, 'baleNo', e.target.value)}
-                                                                />
-                                                            </div>
-                                                            <div className="col-md-3 mb-2">
-                                                                <input
-                                                                    type="text"
-                                                                    className="form-control custom-input"
-                                                                    placeholder="Color"
-                                                                    value={entry.color}
-                                                                    onChange={(e) => updateEntry(index, 'color', e.target.value)}
-                                                                />
-                                                            </div>
-                                                            <div className="col-md-3 mb-2">
-                                                                <input
-                                                                    type="number"
-                                                                    className="form-control custom-input"
-                                                                    placeholder="Metres"
-                                                                    value={entry.meters}
-                                                                    onChange={(e) => updateEntry(index, 'meters', e.target.value)}
-                                                                    min="0"
-                                                                    step="0.01"
-                                                                />
-                                                            </div>
-                                                            <div className="col-md-1 mb-2 d-flex align-items-center justify-content-center">
-                                                                {entries.length > 1 && (
-                                                                    <button
-                                                                        type="button"
-                                                                        className="btn btn-link p-0 delete-btn"
-                                                                        onClick={() => removeEntry(index)}
-                                                                    >
-                                                                        <i className="bi bi-trash fs-5"></i>
-                                                                    </button>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    ))}
-
-                                                    <div className="row mt-2">
-                                                        <div className="col-12">
-                                                            <div className="alert alert-info py-2">
-                                                                <strong>Total Metres: {totalMeters.toFixed(2)}</strong>
-                                                            </div>
-                                                        </div>
+                                                    <div className="table-responsive">
+                                                        <table className="table table-bordered">
+                                                            <thead className="table-light">
+                                                                <tr>
+                                                                    <th>LR Number</th>
+                                                                    <th>Finish Code</th>
+                                                                    <th>Bale Number</th>
+                                                                    <th>Color</th>
+                                                                    <th>Metres</th>
+                                                                    <th width="50">Action</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {entries.map((entry, index) => (
+                                                                    <tr key={index} className="entry-row">
+                                                                        <td>
+                                                                            <input
+                                                                                type="text"
+                                                                                className="form-control custom-input"
+                                                                                placeholder="LR No."
+                                                                                value={entry.lrNo}
+                                                                                onChange={(e) => updateEntry(index, 'lrNo', e.target.value)}
+                                                                            />
+                                                                        </td>
+                                                                        <td>
+                                                                            <input
+                                                                                type="text"
+                                                                                className="form-control custom-input"
+                                                                                placeholder="Finish Code"
+                                                                                value={entry.finishCode}
+                                                                                onChange={(e) => updateEntry(index, 'finishCode', e.target.value)}
+                                                                            />
+                                                                        </td>
+                                                                        <td>
+                                                                            <input
+                                                                                type="text"
+                                                                                className="form-control custom-input"
+                                                                                placeholder="Bale No."
+                                                                                value={entry.baleNo}
+                                                                                onChange={(e) => updateEntry(index, 'baleNo', e.target.value)}
+                                                                            />
+                                                                        </td>
+                                                                        <td>
+                                                                            <input
+                                                                                type="text"
+                                                                                className="form-control custom-input"
+                                                                                placeholder="Color"
+                                                                                value={entry.color}
+                                                                                onChange={(e) => updateEntry(index, 'color', e.target.value)}
+                                                                            />
+                                                                        </td>
+                                                                        <td>
+                                                                            <input
+                                                                                type="number"
+                                                                                className="form-control custom-input"
+                                                                                placeholder="Metres"
+                                                                                value={entry.meters}
+                                                                                onChange={(e) => updateEntry(index, 'meters', e.target.value)}
+                                                                                min="0"
+                                                                                step="0.01"
+                                                                            />
+                                                                        </td>
+                                                                        <td className="text-center">
+                                                                            <button
+                                                                                type="button"
+                                                                                className="btn btn-sm delete-btn"
+                                                                                onClick={() => removeEntry(index)}
+                                                                                disabled={entries.length === 1}
+                                                                            >
+                                                                                <i className="bi bi-trash"></i>
+                                                                            </button>
+                                                                        </td>
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                            <tfoot className="table-light">
+                                                                <tr>
+                                                                    <td colSpan="4" className="text-end fw-bold">Total Metres:</td>
+                                                                    <td className="fw-bold">{totalMeters.toFixed(2)}</td>
+                                                                    <td></td>
+                                                                </tr>
+                                                            </tfoot>
+                                                        </table>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            {/* Additional Charges */}
+                                            {/* Additional Costs */}
                                             <div className="row mb-4">
                                                 <div className="col-12">
                                                     <h4 className="mb-3">
-                                                        <i className="bi bi-cash-stack me-2"></i>
-                                                        Additional Charges
+                                                        <i className="bi bi-cash-coin me-2"></i>
+                                                        Additional Costs
                                                     </h4>
                                                 </div>
 
-                                                <div className="col-md-4 mb-3">
+                                                <div className="col-md-6 mb-3">
                                                     <label htmlFor="discount" className="form-label fw-bold">Discount</label>
                                                     <div className="input-group">
                                                         <span className="input-group-text">₹</span>
@@ -833,16 +832,29 @@
                                                             type="number"
                                                             className="form-control custom-input"
                                                             id="discount"
-                                                            placeholder="Enter discount amount"
+                                                            placeholder="Enter discount"
                                                             value={discount}
                                                             onChange={(e) => setDiscount(e.target.value)}
                                                             min="0"
                                                             step="0.01"
+                                                            disabled={autoDiscount}
                                                         />
+                                                    </div>
+                                                    <div className="form-check form-switch mt-2">
+                                                        <input
+                                                            className="form-check-input"
+                                                            type="checkbox"
+                                                            id="autoDiscountSwitch"
+                                                            checked={autoDiscount}
+                                                            onChange={handleAutoDiscountToggle}
+                                                        />
+                                                        <label className="form-check-label" htmlFor="autoDiscountSwitch">
+                                                            Auto Calculate (₹75 per LR)
+                                                        </label>
                                                     </div>
                                                 </div>
 
-                                                <div className="col-md-4 mb-3">
+                                                <div className="col-md-6 mb-3">
                                                     <label htmlFor="deliveryCharges" className="form-label fw-bold">Delivery Charges</label>
                                                     <div className="input-group">
                                                         <span className="input-group-text">₹</span>
@@ -855,13 +867,26 @@
                                                             onChange={(e) => setDeliveryCharges(e.target.value)}
                                                             min="0"
                                                             step="0.01"
+                                                            disabled={autoDelivery}
                                                         />
+                                                    </div>
+                                                    <div className="form-check form-switch mt-2">
+                                                        <input
+                                                            className="form-check-input"
+                                                            type="checkbox"
+                                                            id="autoDeliverySwitch"
+                                                            checked={autoDelivery}
+                                                            onChange={handleAutoDeliveryToggle}
+                                                        />
+                                                        <label className="form-check-label" htmlFor="autoDeliverySwitch">
+                                                            Auto Calculate (₹60 per LR)
+                                                        </label>
                                                     </div>
                                                 </div>
 
-                                                <div className="col-md-4 mb-3">
-                                                    <label htmlFor="gstRate" className="form-label fw-bold">GST Rate</label>
-                                                    <div className="input-group">
+                                                {isGstBill && (
+                                                    <div className="col-md-6 mb-3">
+                                                        <label htmlFor="gstRate" className="form-label fw-bold">GST Rate (%)</label>
                                                         <input
                                                             type="number"
                                                             className="form-control custom-input"
@@ -870,14 +895,14 @@
                                                             value={gstRate}
                                                             onChange={(e) => setGstRate(e.target.value)}
                                                             min="0"
-                                                            max="100"
+                                                            max="28"
                                                             step="0.01"
                                                         />
-                                                        <span className="input-group-text">%</span>
                                                     </div>
-                                                </div>
+                                                )}
 
-                                                <div className="col-md-12 mb-3">
+                                                <div className="col-md-6 mb-3">
+                                                    <label className="form-label fw-bold">Round Off Amount</label>
                                                     <div className="form-check form-switch">
                                                         <input
                                                             className="form-check-input"
@@ -886,97 +911,104 @@
                                                             checked={roundOff}
                                                             onChange={(e) => setRoundOff(e.target.checked)}
                                                         />
-                                                        <label className="form-check-label fw-bold" htmlFor="roundOffSwitch">
-                                                            <i className="bi bi-arrows-angle-contract me-2"></i>Round Off to Nearest Rupee
+                                                        <label className="form-check-label" htmlFor="roundOffSwitch">
+                                                            Round Off Total Amount
                                                         </label>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            {/* Calculation Summary */}
-                                            {totalMeters > 0 && rate && (
-                                                <div className="row mb-4">
-                                                    <div className="col-12">
-                                                        <div className="card bg-light p-3">
-                                                            <h4 className="mb-3 text-center">Calculation Summary</h4>
-                                                            <div className="row">
-                                                                <div className="col-md-6">
-                                                                    <table className="table table-borderless">
-                                                                        <tbody>
-                                                                            <tr>
-                                                                                <td><strong>Material Cost:</strong></td>
-                                                                                <td className="text-end">{formatCurrency(subtotal)}</td>
-                                                                            </tr>
-                                                                            {parsedDiscount > 0 && (
-                                                                                <tr>
-                                                                                    <td><strong>Discount:</strong></td>
-                                                                                    <td className="text-end text-danger">-{formatCurrency(parsedDiscount)}</td>
-                                                                                </tr>
-                                                                            )}
-                                                                            <tr>
-                                                                                <td><strong>Delivery Charges:</strong></td>
-                                                                                <td className="text-end">{formatCurrency(parsedDeliveryCharges)}</td>
-                                                                            </tr>
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
-                                                                <div className="col-md-6">
-                                                                    <table className="table table-borderless">
-                                                                        <tbody>
-                                                                            <tr>
-                                                                                <td><strong>GST ({parsedGstRate}%):</strong></td>
-                                                                                <td className="text-end">{formatCurrency(gstAmount)}</td>
-                                                                            </tr>
-                                                                            {roundOff && roundOffAmount !== 0 && (
-                                                                                <tr>
-                                                                                    <td><strong>Round Off:</strong></td>
-                                                                                    <td className="text-end">
-                                                                                        {roundOffAmount > 0 ? '+' : ''}{formatCurrency(roundOffAmount)}
-                                                                                    </td>
-                                                                                </tr>
-                                                                            )}
-                                                                            <tr className="border-top">
-                                                                                <td className="fw-bold fs-5">Grand Total:</td>
-                                                                                <td className="text-end fw-bold fs-5 text-primary">
-                                                                                    {formatCurrency(roundedGrandTotal)}
-                                                                                </td>
-                                                                            </tr>
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
-                                                            </div>
+                                            {/* Results */}
+                                            <div className="row mb-4">
+                                                <div className="col-12">
+                                                    <h4 className="mb-3">
+                                                        <i className="bi bi-calculator me-2"></i>
+                                                        Calculation Summary
+                                                    </h4>
+                                                </div>
+
+                                                <div className="col-lg-8 col-md-7 mb-3">
+                                                    <div className="result-section p-3">
+                                                        <div className="row mb-2">
+                                                            <div className="col-7">Material Cost ({totalMeters.toFixed(2)} metres × ₹{parsedRate.toFixed(2)}):</div>
+                                                            <div className="col-5 text-end fw-bold">{formatCurrency(subtotal)}</div>
                                                         </div>
+                                                        {parsedDiscount > 0 && (
+                                                            <div className="row mb-2">
+                                                                <div className="col-7">Discount:</div>
+                                                                <div className="col-5 text-end fw-bold text-danger">- {formatCurrency(parsedDiscount)}</div>
+                                                            </div>
+                                                        )}
+                                                        <div className="row mb-2">
+                                                            <div className="col-7">After Discount:</div>
+                                                            <div className="col-5 text-end fw-bold">{formatCurrency(afterDiscount)}</div>
+                                                        </div>
+                                                        {parsedDeliveryCharges > 0 && (
+                                                            <div className="row mb-2">
+                                                                <div className="col-7">Delivery Charges:</div>
+                                                                <div className="col-5 text-end fw-bold">{formatCurrency(parsedDeliveryCharges)}</div>
+                                                            </div>
+                                                        )}
+                                                        {isGstBill && (
+                                                            <div className="row mb-2">
+                                                                <div className="col-7">GST ({parsedGstRate}%):</div>
+                                                                <div className="col-5 text-end fw-bold">{formatCurrency(gstAmount)}</div>
+                                                            </div>
+                                                        )}
+                                                        <div className="row mb-0">
+                                                            <div className="col-7">Grand Total:</div>
+                                                            <div className="col-5 text-end fw-bold">{formatCurrency(grandTotal)}</div>
+                                                        </div>
+                                                        {roundOff && roundOffAmount !== 0 && (
+                                                            <div className="row round-off">
+                                                                <div className="col-7">
+                                                                    <i className="bi bi-arrow-right me-1"></i>Round Off:
+                                                                </div>
+                                                                <div className="col-5 text-end">{formatCurrency(roundOffAmount)}</div>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
-                                            )}
 
-                                            {/* Form Actions */}
-                                            <div className="row mt-4">
-                                                <div className="col-12 d-grid gap-2 d-md-flex justify-content-md-center">
-                                                    <button type="button" className="btn btn-outline-secondary btn-lg px-5" onClick={handleReset}>
-                                                        <i className="bi bi-arrow-counterclockwise me-2"></i>Reset
-                                                    </button>
-                                                    <button
-                                                        type="submit"
-                                                        className="btn print-button btn-lg px-5"
-                                                        disabled={!(totalMeters > 0 && rate && tokenNo && customerName && itemName && finishCode)}
-                                                    >
-                                                        <i className="bi bi-receipt me-2"></i>Generate Invoice
-                                                    </button>
+                                                <div className="col-lg-4 col-md-5 mb-3">
+                                                    <div className="result-section p-3 text-center">
+                                                        <h5 className="mb-3">Final Amount</h5>
+                                                        <h2 className="text-primary mb-0">{formatCurrency(roundedGrandTotal)}</h2>
+                                                    </div>
                                                 </div>
                                             </div>
+
+                                            {/* Form Buttons */}
+                                            <div className="d-flex justify-content-between">
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-outline-secondary"
+                                                    onClick={handleReset}
+                                                >
+                                                    <i className="bi bi-arrow-counterclockwise me-2"></i>
+                                                    Reset Form
+                                                </button>
+                                                <button
+                                                    type="submit"
+                                                    className="btn btn-primary"
+                                                >
+                                                    <i className="bi bi-file-earmark-pdf me-2"></i>
+                                                    Generate Invoice
+                                                </button>
+                                            </div>
                                         </form>
-                                    </div>
-                                    <div className="card-footer bg-white text-center py-3 text-muted">
-                                        <small>© 2025 Invoice Generator | Made with <i className="bi bi-heart-fill text-danger"></i> by {firmName}</small>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
+                    {/* Invoice Modal */}
                     {showInvoice && (
-                        <Invoice data={invoiceData} onClose={() => setShowInvoice(false)} />
+                        <A5Invoice
+                            data={invoiceData}
+                            onClose={() => setShowInvoice(false)}
+                        />
                     )}
                 </>
             );
