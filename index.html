@@ -380,6 +380,61 @@
             const [loading, setLoading] = useState(true);
             const [errors, setErrors] = useState({});
 
+
+            // Add this function in your EnhancedCalculator component
+
+            const exportToCSV = () => {
+                // Create headers
+                const headers = ['LR Number', 'Finish Code', 'Bale Number', 'Color', 'Metres'];
+
+                // Create data rows from entries
+                const dataRows = entries.map(entry => [
+                    entry.lrNo,
+                    entry.finishCode,
+                    entry.baleNo,
+                    entry.color,
+                    entry.meters
+                ]);
+
+                // Add summary rows
+                const summaryRows = [
+                    ['', '', '', 'Total Metres', totalMeters.toFixed(2)],
+                    ['', '', '', 'Rate per Meter', parsedRate.toFixed(2)],
+                    ['', '', '', 'Material Cost', subtotal.toFixed(2)],
+                    ['', '', '', 'Discount', parsedDiscount.toFixed(2)],
+                    ['', '', '', 'Delivery Charges', parsedDeliveryCharges.toFixed(2)]
+                ];
+
+                if (isGstBill) {
+                    summaryRows.push(['', '', '', `GST (${parsedGstRate}%)`, gstAmount.toFixed(2)]);
+                }
+
+                summaryRows.push(['', '', '', 'Grand Total', roundedGrandTotal.toFixed(2)]);
+
+                // Combine all rows
+                const allRows = [headers, ...dataRows, [''], ...summaryRows];
+
+                // Convert to CSV
+                let csvContent = "data:text/csv;charset=utf-8,";
+
+                allRows.forEach(row => {
+                    const rowString = row.join(',');
+                    csvContent += rowString + '\r\n';
+                });
+
+                // Create download link
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", `Invoice_${challNo}_${date}.csv`);
+                document.body.appendChild(link);
+
+                // Trigger download
+                link.click();
+                document.body.removeChild(link);
+            };
+
+
             // Handle firm name change based on toggle
             useEffect(() => {
                 setFirmName(useFirstFirm ? "B.P.TRADING PVT LTD" : "BHAGWATI TRADERS");
@@ -981,6 +1036,33 @@
 
                                             {/* Form Buttons */}
                                             <div className="d-flex justify-content-between">
+                                                <div className="d-flex justify-content-between">
+                                                    <div>
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-outline-secondary me-2"
+                                                            onClick={handleReset}
+                                                        >
+                                                            <i className="bi bi-arrow-counterclockwise me-2"></i>
+                                                            Reset Form
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-outline-success"
+                                                            onClick={exportToCSV}
+                                                        >
+                                                            <i className="bi bi-file-earmark-excel me-2"></i>
+                                                            Export to Excel
+                                                        </button>
+                                                    </div>
+                                                    <button
+                                                        type="submit"
+                                                        className="btn btn-primary"
+                                                    >
+                                                        <i className="bi bi-file-earmark-pdf me-2"></i>
+                                                        Generate Invoice
+                                                    </button>
+                                                </div>
                                                 <button
                                                     type="button"
                                                     className="btn btn-outline-secondary"
