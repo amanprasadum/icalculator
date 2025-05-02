@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>React Notes App</title>
+    <title>Expense Tracker App</title>
     <!-- React CDN Links -->
     <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
     <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -38,7 +38,7 @@
           color: #333;
         }
         
-        input, textarea, button {
+        input, textarea, button, select {
           padding: 10px;
           margin-bottom: 10px;
           border: 1px solid #ddd;
@@ -58,12 +58,36 @@
           background-color: #3367d6;
         }
         
-        .item {
+        .form-group {
+          margin-bottom: 15px;
+        }
+        
+        .form-group label {
+          display: block;
+          margin-bottom: 5px;
+          font-weight: bold;
+        }
+        
+        .expense-item {
           padding: 15px;
           margin-bottom: 10px;
           background-color: #f9f9f9;
           border-radius: 4px;
           border-left: 3px solid #4285f4;
+        }
+        
+        .expense-amount {
+          font-weight: bold;
+          font-size: 1.2em;
+        }
+        
+        .expense-category {
+          display: inline-block;
+          padding: 3px 8px;
+          background-color: #e0e0e0;
+          border-radius: 12px;
+          font-size: 0.85em;
+          margin-right: 10px;
         }
         
         .item-actions {
@@ -93,6 +117,20 @@
         .edit-btn:hover {
           background-color: #ff8f00;
         }
+        
+        .summary {
+          margin: 20px 0;
+          padding: 15px;
+          background-color: #e8f0fe;
+          border-radius: 4px;
+        }
+        
+        .filters {
+          margin-bottom: 20px;
+          padding: 15px;
+          background-color: #f0f0f0;
+          border-radius: 4px;
+        }
     </style>
 </head>
 <body>
@@ -101,66 +139,132 @@
     <script type="text/babel">
         // Helper functions for localStorage
         const LocalStorageService = {
-          getAllNotes: () => {
-            const notes = localStorage.getItem('notes');
-            return notes ? JSON.parse(notes) : [];
+          getAllExpenses: () => {
+            const expenses = localStorage.getItem('expenses');
+            return expenses ? JSON.parse(expenses) : [];
           },
           
-          saveNotes: (notes) => {
-            localStorage.setItem('notes', JSON.stringify(notes));
+          saveExpenses: (expenses) => {
+            localStorage.setItem('expenses', JSON.stringify(expenses));
           },
           
-          addNote: (note) => {
-            const notes = LocalStorageService.getAllNotes();
-            const newNote = {
+          addExpense: (expense) => {
+            const expenses = LocalStorageService.getAllExpenses();
+            const newExpense = {
               id: Date.now(),
-              text: note,
+              ...expense,
               createdAt: new Date().toISOString()
             };
-            notes.push(newNote);
-            LocalStorageService.saveNotes(notes);
-            return newNote;
+            expenses.push(newExpense);
+            LocalStorageService.saveExpenses(expenses);
+            return newExpense;
           },
           
-          deleteNote: (id) => {
-            const notes = LocalStorageService.getAllNotes();
-            const filteredNotes = notes.filter(note => note.id !== id);
-            LocalStorageService.saveNotes(filteredNotes);
+          deleteExpense: (id) => {
+            const expenses = LocalStorageService.getAllExpenses();
+            const filteredExpenses = expenses.filter(expense => expense.id !== id);
+            LocalStorageService.saveExpenses(filteredExpenses);
           },
           
-          updateNote: (id, newText) => {
-            const notes = LocalStorageService.getAllNotes();
-            const updatedNotes = notes.map(note => 
-              note.id === id ? { ...note, text: newText, updatedAt: new Date().toISOString() } : note
+          updateExpense: (id, updatedExpense) => {
+            const expenses = LocalStorageService.getAllExpenses();
+            const updatedExpenses = expenses.map(expense => 
+              expense.id === id ? { 
+                ...expense, 
+                ...updatedExpense, 
+                updatedAt: new Date().toISOString() 
+              } : expense
             );
-            LocalStorageService.saveNotes(updatedNotes);
+            LocalStorageService.saveExpenses(updatedExpenses);
           }
         };
 
-        // Note Item Component
-        const NoteItem = ({ note, onDelete, onEdit }) => {
+        // Categories
+        const CATEGORIES = [
+          "Food", "Transportation", "Housing", "Entertainment", "Utilities", 
+          "Healthcare", "Shopping", "Education", "Travel", "Other"
+        ];
+
+        // Format currency
+        const formatCurrency = (amount) => {
+          return new Intl.NumberFormat('en-US', { 
+            style: 'currency', 
+            currency: 'USD' 
+          }).format(amount);
+        };
+
+        // Expense Item Component
+        const ExpenseItem = ({ expense, onDelete, onEdit }) => {
           const [isEditing, setIsEditing] = React.useState(false);
-          const [editText, setEditText] = React.useState(note.text);
+          const [editData, setEditData] = React.useState({
+            description: expense.description,
+            amount: expense.amount,
+            category: expense.category,
+            date: expense.date
+          });
           
           const handleSave = () => {
-            onEdit(note.id, editText);
+            onEdit(expense.id, editData);
             setIsEditing(false);
           };
           
+          const handleChange = (e) => {
+            const { name, value } = e.target;
+            setEditData({
+              ...editData,
+              [name]: name === 'amount' ? parseFloat(value) : value
+            });
+          };
+          
           const formatDate = (dateString) => {
-            const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
             return new Date(dateString).toLocaleDateString(undefined, options);
           };
           
           return (
-            <div className="item">
+            <div className="expense-item">
               {isEditing ? (
                 <>
-                  <textarea 
-                    value={editText} 
-                    onChange={(e) => setEditText(e.target.value)}
-                    rows="4"
-                  />
+                  <div className="form-group">
+                    <label>Description:</label>
+                    <input 
+                      type="text"
+                      name="description"
+                      value={editData.description} 
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Amount ($):</label>
+                    <input 
+                      type="number"
+                      name="amount"
+                      step="0.01"
+                      value={editData.amount} 
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Category:</label>
+                    <select 
+                      name="category"
+                      value={editData.category}
+                      onChange={handleChange}
+                    >
+                      {CATEGORIES.map(cat => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>Date:</label>
+                    <input 
+                      type="date"
+                      name="date"
+                      value={editData.date}
+                      onChange={handleChange}
+                    />
+                  </div>
                   <div className="item-actions">
                     <button onClick={handleSave}>Save</button>
                     <button className="delete-btn" onClick={() => setIsEditing(false)}>Cancel</button>
@@ -168,12 +272,17 @@
                 </>
               ) : (
                 <>
-                  <p>{note.text}</p>
-                  <small>Created: {formatDate(note.createdAt)}</small>
-                  {note.updatedAt && <small> (Updated: {formatDate(note.updatedAt)})</small>}
+                  <h3>{expense.description}</h3>
+                  <p className="expense-amount">{formatCurrency(expense.amount)}</p>
+                  <div>
+                    <span className="expense-category">{expense.category}</span>
+                    <span>{formatDate(expense.date)}</span>
+                  </div>
+                  <small>Added: {formatDate(expense.createdAt)}</small>
+                  {expense.updatedAt && <small> (Updated: {formatDate(expense.updatedAt)})</small>}
                   <div className="item-actions">
                     <button className="edit-btn" onClick={() => setIsEditing(true)}>Edit</button>
-                    <button className="delete-btn" onClick={() => onDelete(note.id)}>Delete</button>
+                    <button className="delete-btn" onClick={() => onDelete(expense.id)}>Delete</button>
                   </div>
                 </>
               )}
@@ -181,71 +290,205 @@
           );
         };
 
+        // Summary Component
+        const ExpenseSummary = ({ expenses }) => {
+          const totalAmount = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+          
+          // Group by category
+          const byCategory = expenses.reduce((acc, expense) => {
+            acc[expense.category] = (acc[expense.category] || 0) + expense.amount;
+            return acc;
+          }, {});
+          
+          // Find top category
+          let topCategory = "None";
+          let topAmount = 0;
+          
+          Object.entries(byCategory).forEach(([category, amount]) => {
+            if (amount > topAmount) {
+              topCategory = category;
+              topAmount = amount;
+            }
+          });
+          
+          return (
+            <div className="summary">
+              <h2>Expense Summary</h2>
+              <p><strong>Total Expenses:</strong> {formatCurrency(totalAmount)}</p>
+              <p><strong>Number of Expenses:</strong> {expenses.length}</p>
+              <p><strong>Top Category:</strong> {topCategory} ({formatCurrency(topAmount)})</p>
+            </div>
+          );
+        };
+
         // Main App Component
         const App = () => {
-          const [notes, setNotes] = React.useState([]);
-          const [newNote, setNewNote] = React.useState('');
+          const [expenses, setExpenses] = React.useState([]);
+          const [newExpense, setNewExpense] = React.useState({
+            description: '',
+            amount: '',
+            category: 'Food',
+            date: new Date().toISOString().split('T')[0] // Today's date in YYYY-MM-DD format
+          });
+          const [filterCategory, setFilterCategory] = React.useState('');
           
-          // Load notes from localStorage on component mount
+          // Load expenses from localStorage on component mount
           React.useEffect(() => {
-            setNotes(LocalStorageService.getAllNotes());
+            setExpenses(LocalStorageService.getAllExpenses());
           }, []);
           
-          const handleAddNote = (e) => {
+          const handleInputChange = (e) => {
+            const { name, value } = e.target;
+            setNewExpense({
+              ...newExpense,
+              [name]: name === 'amount' ? (value === '' ? '' : parseFloat(value)) : value
+            });
+          };
+          
+          const handleAddExpense = (e) => {
             e.preventDefault();
-            if (newNote.trim() === '') return;
             
-            const note = LocalStorageService.addNote(newNote);
-            setNotes([...notes, note]);
-            setNewNote('');
+            // Validate form
+            if (
+              newExpense.description.trim() === '' || 
+              newExpense.amount === '' || 
+              isNaN(newExpense.amount) ||
+              newExpense.amount <= 0 ||
+              newExpense.date === ''
+            ) {
+              alert('Please fill all fields correctly');
+              return;
+            }
+            
+            const expense = LocalStorageService.addExpense(newExpense);
+            setExpenses([...expenses, expense]);
+            
+            // Reset form
+            setNewExpense({
+              description: '',
+              amount: '',
+              category: 'Food',
+              date: new Date().toISOString().split('T')[0]
+            });
           };
           
-          const handleDeleteNote = (id) => {
-            LocalStorageService.deleteNote(id);
-            setNotes(notes.filter(note => note.id !== id));
+          const handleDeleteExpense = (id) => {
+            LocalStorageService.deleteExpense(id);
+            setExpenses(expenses.filter(expense => expense.id !== id));
           };
           
-          const handleEditNote = (id, newText) => {
-            LocalStorageService.updateNote(id, newText);
-            setNotes(notes.map(note => 
-              note.id === id ? { ...note, text: newText, updatedAt: new Date().toISOString() } : note
+          const handleEditExpense = (id, updatedExpense) => {
+            LocalStorageService.updateExpense(id, updatedExpense);
+            setExpenses(expenses.map(expense => 
+              expense.id === id ? { ...expense, ...updatedExpense, updatedAt: new Date().toISOString() } : expense
             ));
           };
           
+          // Filter expenses by category
+          const filteredExpenses = filterCategory 
+            ? expenses.filter(expense => expense.category === filterCategory)
+            : expenses;
+          
           return (
             <div className="container">
-              <h1>React Notes App</h1>
-              <p>Your notes are saved in your browser's local storage.</p>
+              <h1>Expense Tracker App</h1>
+              <p>Track your expenses and see where your money goes.</p>
               
-              <form onSubmit={handleAddNote}>
-                <h2>Add a New Note</h2>
-                <textarea
-                  rows="4"
-                  value={newNote}
-                  onChange={(e) => setNewNote(e.target.value)}
-                  placeholder="Write your note here..."
-                />
-                <button type="submit">Save Note</button>
+              {/* Add new expense form */}
+              <form onSubmit={handleAddExpense}>
+                <h2>Add New Expense</h2>
+                <div className="form-group">
+                  <label>Description:</label>
+                  <input
+                    type="text"
+                    name="description"
+                    value={newExpense.description}
+                    onChange={handleInputChange}
+                    placeholder="What did you spend on?"
+                    required
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label>Amount ($):</label>
+                  <input
+                    type="number"
+                    name="amount"
+                    step="0.01"
+                    value={newExpense.amount}
+                    onChange={handleInputChange}
+                    placeholder="How much did you spend?"
+                    required
+                    min="0.01"
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label>Category:</label>
+                  <select
+                    name="category"
+                    value={newExpense.category}
+                    onChange={handleInputChange}
+                    required
+                  >
+                    {CATEGORIES.map(category => (
+                      <option key={category} value={category}>{category}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="form-group">
+                  <label>Date:</label>
+                  <input
+                    type="date"
+                    name="date"
+                    value={newExpense.date}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                
+                <button type="submit">Add Expense</button>
               </form>
               
-              <h2>Your Notes ({notes.length})</h2>
-              {notes.length === 0 ? (
-                <p>No notes yet. Add your first note above.</p>
+              {/* Expense Summary */}
+              {expenses.length > 0 && <ExpenseSummary expenses={expenses} />}
+              
+              {/* Filter Controls */}
+              <div className="filters">
+                <label>Filter by Category:</label>
+                <select 
+                  value={filterCategory} 
+                  onChange={(e) => setFilterCategory(e.target.value)}
+                >
+                  <option value="">All Categories</option>
+                  {CATEGORIES.map(category => (
+                    <option key={category} value={category}>{category}</option>
+                  ))}
+                </select>
+              </div>
+              
+              {/* List of Expenses */}
+              <h2>Your Expenses ({filteredExpenses.length})</h2>
+              {filteredExpenses.length === 0 ? (
+                <p>No expenses found. Add your first expense above.</p>
               ) : (
-                notes.sort((a, b) => b.id - a.id).map(note => (
-                  <NoteItem 
-                    key={note.id} 
-                    note={note} 
-                    onDelete={handleDeleteNote}
-                    onEdit={handleEditNote}
-                  />
-                ))
+                filteredExpenses
+                  .sort((a, b) => new Date(b.date) - new Date(a.date))
+                  .map(expense => (
+                    <ExpenseItem 
+                      key={expense.id} 
+                      expense={expense} 
+                      onDelete={handleDeleteExpense}
+                      onEdit={handleEditExpense}
+                    />
+                  ))
               )}
             </div>
           );
         };
 
-              // Render the App
+        // Render the App
         ReactDOM.render(<App />, document.getElementById('root'));
     </script>
 </body>
